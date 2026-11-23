@@ -20,7 +20,7 @@ This is a working application foundation: FastAPI backend, responsive dashboard,
 
 ## Connected data source\n- ESPN public NBA endpoints: daily scoreboard, league injury report, and athlete game logs. No API key is required. These endpoints are undocumented and may change; failures are reported instead of replaced with sample data.\n- API routes: `/api/games`, `/api/injuries`, `/api/players/{player_id}/gamelog`, and `/api/status`.\n\n## Data policy
 - The scanner fetches current source data on demand; no permanent historical database is required for its initial operation. A short in-memory cache may reduce repeated requests.
-- Player-prop odds are restricted to Superbet Poland and STS Poland. No foreign bookmaker is silently substituted.
+- Player-prop odds are taken only from verified live sources. Superbet Poland and STS Poland are preferred when their player markets are actually available; other bookmakers may be used when needed, but the real bookmaker name is always shown and never substituted.
 - See [Live data policy](docs/LIVE_DATA_POLICY.md) for source selection, freshness checks and limitations.
 
 ## Next integration work
