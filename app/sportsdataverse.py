@@ -81,6 +81,7 @@ def load_current_season() -> tuple[list[dict[str, str]], list[dict[str, str]], d
     logs_path = _download(
         f"{RELEASE_BASE}/nba_stats_player_game_logs/player_game_logs_{season}.csv",
         DATA_DIR / f"player_game_logs_{season}.csv",
+        max_age_hours=1,
     )
     injury_path = _download(
         f"{RELEASE_BASE}/nba_stats_injury_report/injury_report_{season}.csv",
