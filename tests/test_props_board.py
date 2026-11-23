@@ -24,10 +24,12 @@ def test_board_keeps_nonstandard_prices_and_marks_preferred_band():
         _offer("Over", 2.25),
     ])
     assert len(rows) == 1
-    assert rows[0]["over_quote"]["odds"] == 2.25
+    assert rows[0]["over_quote"]["odds"] == 1.60
     assert rows[0]["under_quote"]["odds"] == 2.20
     assert rows[0]["recent_games"][0]["matchup"] == "AAA vs BBB"
     assert rows[0]["recent_games"][0]["date"] == "2026-11-20"
+    outside_preferred = build_props_board([_offer("Over", 2.25)])
+    assert outside_preferred[0]["over_quote"]["odds"] == 2.25
 
 
 def test_board_drops_only_invalid_or_missing_prices():
@@ -41,3 +43,7 @@ def test_board_keeps_real_line_and_recent_coverage():
     assert rows[0]["over_hits"] == 7
     assert rows[0]["under_hits"] == 3
     assert rows[0]["sample_size"] == 10
+
+
+def test_board_still_rejects_extreme_short_prices():
+    assert build_props_board([_offer("Over", 1.20)]) == []
