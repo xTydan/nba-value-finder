@@ -390,8 +390,11 @@ def _teammate_splits(
                 "active_minutes": [], "out_minutes": [],
             })
             entry["active_values"].append(target_value)
-            if target_minutes is not None:
-                entry["active_minutes"].append(target_minutes)
+            teammate_minutes = _number(teammate_row, "min")
+            if teammate_minutes is None:
+                teammate_minutes = _number(teammate_row, "minutes")
+            if teammate_minutes is not None:
+                entry["active_minutes"].append(teammate_minutes)
         for report in reports_by_game_team.get((game_id, team_id), []):
             teammate_id = str(report.get("person_id") or "").strip()
             if not teammate_id or teammate_id == player_id:
