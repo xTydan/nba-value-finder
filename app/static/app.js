@@ -26,5 +26,17 @@ async function refreshStatus(){
     document.getElementById('updated').textContent='Status: '+new Date(data.generated_at).toLocaleString('pl-PL');
   }catch(error){box.innerHTML='<article class="provider">Nie udało się pobrać statusu backendu.</article>'}
 }
+
+async function loadInjuries(){
+  const box=document.getElementById('injuries');
+  try{
+    const response=await fetch('/api/injuries');
+    if(!response.ok)throw new Error('ESPN HTTP '+response.status);
+    const data=await response.json();
+    if(!data.players.length){box.innerHTML='<article class="provider"><b>Brak wpisów w raporcie</b><p>ESPN nie zwrócił obecnie zgłoszonych absencji. Nie oznacza to automatycznie, że wszyscy zawodnicy są w pełni zdrowi.</p></article>';return}
+    box.innerHTML=data.players.map(player=>`<article class="provider"><b>${escapeHtml(player.player||'Nieznany zawodnik')}</b><span class="pill">${escapeHtml(player.status||'STATUS NIEZNANY')}</span><p>${escapeHtml(player.team||'Drużyna nieznana')}${player.details?' · '+escapeHtml(player.details):''}</p></article>`).join('');
+  }catch(error){box.innerHTML='<article class="provider"><b>Raport kontuzji niedostępny</b><p>'+escapeHtml(error.message)+'</p></article>'}
+}
 refreshStatus();
 loadGames();
+loadInjuries();
