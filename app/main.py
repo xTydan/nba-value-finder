@@ -66,7 +66,7 @@ def status():
 
 
 @app.get("/api/games")
-def games(date: str | None = Query(default=None, pattern=r"^\\d{8}$")):
+def games(date: str | None = Query(default=None, pattern=r"^\d{8}$")):
     try:
         return espn.get_scoreboard(date)
     except ValueError as exc:
