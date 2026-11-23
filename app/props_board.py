@@ -90,6 +90,7 @@ def build_props_board(offers: list[dict[str, Any]]) -> list[dict[str, Any]]:
                             "bookmaker_key": under_quote.get("bookmaker_key"), "age_seconds": under_quote.get("age_seconds")} if under_quote else None,
             "preferred_odds_range": [PREFERRED_ODDS_MIN, PREFERRED_ODDS_MAX],
             "analysis_key": base.get("analysis_key") or sample.get("analysis_key"),
+            "best_side": ("over" if over_quote and (not under_quote or over_hits >= under_hits) else "under"),
         })
     board.sort(key=lambda row: (
         max(row["over_rate"] if row["over_quote"] else 0,
