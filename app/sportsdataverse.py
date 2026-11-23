@@ -396,3 +396,89 @@ def _report_name(value: Any) -> str | None:
         last, first = [part.strip() for part in raw.split(",", 1)]
         return f"{first} {last}".strip()
     return raw
+
+
+def filter_impact_injuries(
+    injury_players: list[dict[str, Any]],
+    logs: list[dict[str, str]],
+    min_rotation_minutes: float = 24.0,
+    recent_games: int = 20,
+) -> list[dict[str, Any]]:
+    """Keep injured players with evidence of starter/core-rotation usage.
+
+    Prefer explicit starter flags/positions where the feed provides them.
+    Otherwise use recent average minutes as a conservative role proxy.
+    """
+    by_id: dict[str, list[dict[str, str]]] = defaultdict(list)
+    by_name: dict[str, list[dict[str, str]]] = defaultdict(list)
+    for row in logs:
+        pid = str(row.get("player_id") or "").strip()
+        name = normalize_name(row.get("player_name"))
+        if pid:
+            by_id[pid].append(row)
+        if name:
+            by_name[name].append(row)
+
+    def started(row: dict[str, str]) -> bool | None:
+        for key in ("start_position", "start_pos", "starter_position", "position_started"):
+            value = str(row.get(key) or "").strip().upper()
+            if value and value not in {"", "NONE", "NULL", "NAN", "0", "FALSE"}:
+                return True
+        for key in ("starter", "is_starter", "started", "start"):
+            value = str(row.get(key) or "").strip().lower()
+            if value in {"1", "true", "yes", "y"}:
+                return True
+            if value in {"0", "false", "no", "n"}:
+                return False
+        return None
+
+    selected = []
+    seen = set()
+    for injury in injury_players:
+        pid = str(injury.get("player_id") or "").strip()
+        rows = by_id.get(pid, []) if pid else []
+        if not rows:
+            name_rows = by_name.get(normalize_name(injury.get("player")), [])
+            # Avoid accidentally assigning another player with the same name.
+            if len({str(row.get("player_id") or "") for row in name_rows}) == 1:
+                rows = name_rows
+        rows = sorted(rows, key=lambda row: str(row.get("game_date") or ""), reverse=True)[:recent_games]
+        if not rows:
+            continue
+        minute_values = []
+        start_flags = []
+        for row in rows:
+            minutes = _number(row, "min")
+            if minutes is None:
+                minutes = _number(row, "minutes")
+            if minutes is not None and minutes > 0:
+                minute_values.append(minutes)
+            flag = started(row)
+            if flag is not None:
+                start_flags.append(flag)
+        if not minute_values:
+            continue
+        avg_minutes = round(statistics.mean(minute_values), 1)
+        start_rate = round(sum(start_flags) / len(start_flags), 3) if start_flags else None
+        # An explicit regular starter is always retained. Without start metadata,
+        # require substantial minutes; a 24+ minute player is a core rotation member.
+        is_starter = start_rate is not None and start_rate >= 0.50
+        if not is_starter and avg_minutes < min_rotation_minutes:
+            continue
+        key = (normalize_name(injury.get("player")), normalize_name(injury.get("team")))
+        if key in seen:
+            continue
+        seen.add(key)
+        enriched = dict(injury)
+        enriched["rotation_role"] = "Starter" if is_starter else "Ważna rotacja"
+        enriched["average_minutes_recent"] = avg_minutes
+        enriched["recent_games_sample"] = len(minute_values)
+        enriched["starter_rate_recent"] = start_rate
+        selected.append(enriched)
+
+    selected.sort(key=lambda row: (
+        0 if row["rotation_role"] == "Starter" else 1,
+        -float(row["average_minutes_recent"]),
+        str(row.get("player") or "").casefold(),
+    ))
+    return selected
