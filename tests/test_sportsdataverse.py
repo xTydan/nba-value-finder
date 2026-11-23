@@ -36,11 +36,12 @@ def test_enrichment_computes_l10_and_explicit_teammate_absence_split():
             "game_date": date, "team_id": "10", "min": "35",
             "pts": str(20 + i * 5), "reb": "5", "ast": "4",
         })
-        injuries.append({
-            "game_id": game, "person_id": "p2", "team_id": "10",
-            "report_datetime": date + " 12:00", "current_status": p2_status,
-            "report_player_name": "Two, Player",
-        })
+        if p2_status == "Out":
+            injuries.append({
+                "game_id": game, "person_id": "p2", "team_id": "10",
+                "report_datetime": date + " 12:00", "current_status": p2_status,
+                "report_player_name": "Two, Player",
+            })
         if p2_played:
             logs.append({
                 "player_id": "p2", "player_name": "Player Two", "game_id": game,
