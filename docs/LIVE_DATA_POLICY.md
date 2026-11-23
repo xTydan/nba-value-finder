@@ -71,7 +71,7 @@ A strong candidate for historical teammate-absence context is the public `nba_st
 - Player matching must use `person_id` where present. Rows with missing IDs or weak `match_method` need a lower-confidence label or exclusion.
 - Before using this feed, test the current-season asset, row uniqueness, game/player joins and status timestamps. Historical teammate splits should disclose sample size and only compare games with known status.
 
-This source is promising for the user's key requirement: comparing a player's performance when a specific teammate was explicitly available versus explicitly ruled out. It is not yet wired into the production snapshot.
+The current implementation downloads the current-season game-log and injury-report CSV assets into a daily GitHub Actions cache. It enriches each verified prop line with L5/L10 hit rates, average/median, minutes and last-game date. Teammate presence is confirmed by a positive-minute box-score row; teammate absence is counted only when the latest report row for that game explicitly says OUT and the teammate did not appear. All other cases remain UNKNOWN and are excluded from the split. The source is wired into the snapshot, but its joins and sample-size behavior still require ongoing validation before any value recommendations are enabled.
 
 ## Integration rules
 
