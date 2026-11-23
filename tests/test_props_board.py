@@ -47,3 +47,26 @@ def test_board_keeps_real_line_and_recent_coverage():
 
 def test_board_still_rejects_extreme_short_prices():
     assert build_props_board([_offer("Over", 1.20)]) == []
+
+
+def test_board_selects_only_one_best_line_for_same_player_market():
+    form = {
+        "sample_size": 10,
+        "recent_values": [20, 22, 21, 25, 19, 23, 24, 18, 22, 20],
+        "recent_dates": ["2026-11-20"] * 10,
+        "recent_games": [],
+        "average_l10": 21.4,
+        "average_minutes_l10": 34.0,
+    }
+    offers = [
+        _offer("Over", 1.90, line=15.5, form=form),
+        _offer("Under", 1.90, line=15.5, form=form),
+        _offer("Over", 1.90, line=16.5, form=form),
+        _offer("Under", 1.90, line=16.5, form=form),
+    ]
+    rows = build_props_board(offers)
+    assert len(rows) == 1
+    # The lower line has the stronger OVER coverage; the higher line is not
+    # shown as a second separate pick for the same player/event/market.
+    assert rows[0]["line"] == 15.5
+    assert rows[0]["over_hits"] == 10
