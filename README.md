@@ -5,7 +5,7 @@ Publiczny, statyczny portal do wyszukiwania opłacalnych linii statystycznych za
 ## Jak działa strona
 
 1. GitHub Actions uruchamia skaner co 30 minut (minuty 07 i 37 każdej godziny).
-2. Skaner pobiera przedmeczowe player props z PropLine, raport absencji i terminarz z ESPN.
+2. Skaner pobiera przedmeczowe player props z PropLine, aktualny raport absencji i terminarz z ESPN oraz bieżącego sezonu NBA game logs i historyczne oficjalne raporty absencji przetworzone przez SportsDataverse.
 3. Dane są normalizowane i zapisywane do `site/data/latest.json`.
 4. GitHub Pages publikuje statyczną stronę. Przeglądarka nie łączy się bezpośrednio z API bukmacherskim, a klucz PropLine nigdy nie trafia do frontendu.
 5. TOP VALUE pozostaje pusty, dopóki model prawdopodobieństwa nie przejdzie walidacji. Same linie i pokrycie L10 nie są wystarczającą podstawą do rekomendacji.
@@ -28,7 +28,8 @@ Nie umieszczaj klucza w plikach repozytorium, JavaScript ani w danych publikowan
 
 ## Aktualne źródła i ograniczenia
 
-- ESPN public endpoints: terminarz, raport kontuzji i game logs.
+- ESPN public endpoints: terminarz i bieżący raport kontuzji.
+- SportsDataverse: bieżący sezon NBA player game logs oraz historyczne wersje oficjalnych raportów absencji NBA. Pliki są cache'owane w GitHub Actions; na kartach pokazujemy datę ostatniego meczu w źródle.
 - PropLine: zbiorczy feed NBA player props. Do publicznego widoku dopuszczamy wyłącznie rozpoznanych operatorów bukmacherskich; platformy fantasy i rynki predykcyjne są odrzucane.
 - Superbet PL i STS nie są potwierdzonymi źródłami NBA player props w PropLine, więc nie będą wyświetlane pod ich nazwami.
 - Linie są odrzucane, jeżeli mecz już się rozpoczął albo aktualizacja kursu jest starsza niż skonfigurowany limit.
