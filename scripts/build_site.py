@@ -42,14 +42,19 @@ def main():
     if historical_data:
         logs, historical_injuries, stats_meta = historical_data
         try:
+            roster_teams = sportsdataverse.team_abbreviations_for_offers(odds_items, logs)
+            positions = espn.get_positions_for_teams(roster_teams)
             odds_items, analysis_summary, player_analysis = sportsdataverse.enrich_player_props(
-                odds_items, logs, historical_injuries
+                odds_items, logs, historical_injuries, positions=positions
             )
+            analysis_summary["position_teams_queried"] = len(roster_teams)
+            analysis_summary["players_with_positions"] = len(positions)
             stats_status["message"] = (
                 f"Game logs: {stats_meta['game_log_rows']}; injury-report rows: "
                 f"{stats_meta['injury_report_rows']}; last game in stats feed: "
                 f"{stats_meta['last_game_date']}; matched offers: "
-                f"{analysis_summary['offers_enriched']}."
+                f"{analysis_summary['offers_enriched']}; roster teams: {len(roster_teams)}; "
+                f"players with positions: {len(positions)}."
             )
         except Exception as exc:
             stats_status.update({
