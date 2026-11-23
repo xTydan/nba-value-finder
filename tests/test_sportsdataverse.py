@@ -66,7 +66,7 @@ def test_only_pregame_injury_report_versions_are_used():
     from app.sportsdataverse import _keep_pregame_reports
     schedules = [{
         "game_id": "g1",
-        "game_date_time_utc": "2026-11-02T00:00:00Z",
+        "game_date_time_utc": "2026-11-02T00:00:00",
     }]
     injuries = [
         {"game_id": "g1", "person_id": "p1", "report_datetime": "2026-11-01 18:00:00", "current_status": "Questionable"},
