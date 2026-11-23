@@ -286,26 +286,40 @@ def _teammate_splits(
             target_minutes = _number(player_row, "minutes")
         if target_value is None:
             continue
+        # Anyone who actually logged minutes is confirmed present, even if
+        # they were not listed on the injury report.
+        for teammate_row in logs_by_game_team.get((game_id, team_id), []):
+            teammate_id = str(teammate_row.get("player_id") or "").strip()
+            if not teammate_id or teammate_id == player_id:
+                continue
+            entry = accum.setdefault(teammate_id, {
+                "name": str(teammate_row.get("player_name") or teammate_id),
+                "active_values": [], "out_values": [],
+                "active_minutes": [], "out_minutes": [],
+            })
+            entry["active_values"].append(target_value)
+            if target_minutes is not None:
+                entry["active_minutes"].append(target_minutes)
+
+        # Absence is counted only when the latest pregame report explicitly
+        # says OUT and the player did not appear in the box score.
         for report in reports_by_game_team.get((game_id, team_id), []):
             teammate_id = str(report.get("person_id") or "").strip()
             if not teammate_id or teammate_id == player_id:
                 continue
             status = str(report.get("current_status") or "").strip().lower()
-            did_play = (game_id, teammate_id) in played
-            if did_play:
-                bucket = "active"
-            elif status == "out":
-                bucket = "out"
-            else:
+            if status != "out" or (game_id, teammate_id) in played:
                 continue
             entry = accum.setdefault(teammate_id, {
-                "name": _report_name(report.get("report_player_name")),
+                "name": _report_name(report.get("report_player_name")) or teammate_id,
                 "active_values": [], "out_values": [],
                 "active_minutes": [], "out_minutes": [],
             })
-            entry[f"{bucket}_values"].append(target_value)
+            if not entry.get("name") or entry["name"] == teammate_id:
+                entry["name"] = _report_name(report.get("report_player_name")) or teammate_id
+            entry["out_values"].append(target_value)
             if target_minutes is not None:
-                entry[f"{bucket}_minutes"].append(target_minutes)
+                entry["out_minutes"].append(target_minutes)
 
     result = []
     for teammate_id, entry in accum.items():
