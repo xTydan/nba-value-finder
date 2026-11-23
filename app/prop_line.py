@@ -32,7 +32,7 @@ EXCLUDED_BOOKS = {
 ALLOWED_BOOKS = {
     "betmgm", "betrivers", "bovada", "draftkings", "elabet", "eurobet",
     "fanduel", "fanatics", "hardrockbet", "lottomatica", "pinnacle",
-    "snai", "stoiximan", "tonybet", "unibet", "williamhillit",
+    "snai", "stoiximan", "superbet_pl", "sts", "tonybet", "unibet", "williamhillit",
     "eplay24", "thescorebet",
 }
 
