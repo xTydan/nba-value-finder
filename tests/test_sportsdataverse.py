@@ -40,13 +40,18 @@ def test_enrichment_computes_l10_and_explicit_teammate_absence_split():
                          "pts": "10", "reb": "3", "ast": "3"})
     offer = {"player": "Player One", "player_id": None, "market": "player_points",
              "line": 27.5, "side": "Over"}
-    enriched, summary, analysis = enrich_player_props([offer], logs, injuries)
+    enriched, summary, analysis = enrich_player_props([offer], logs, injuries, positions={
+        "playerone": {"position": "PG", "position_confidence": "high"},
+        "playertwo": {"position": "PG", "position_confidence": "high"},
+    })
     assert enriched[0]["form"]["sample_size"] == 4
     assert enriched[0]["form"]["recent_games"][0]["date"] == "2026-11-07"
     assert enriched[0]["form"]["recent_games"][0]["game_id"] == "g3"
     assert enriched[0]["form"]["l10"]["hits"] == 2
     split = analysis[enriched[0]["analysis_key"]]["teammate_splits"][0]
     assert split["teammate"] == "Player Two"
+    assert split["same_position"] is True
+    assert enriched[0]["player_position"] == "PG"
     assert split["active_games"] == 2 and split["out_games"] == 2
     assert split["average_with_out"] > split["average_with_active"]
     assert summary["offers_enriched"] == 1
