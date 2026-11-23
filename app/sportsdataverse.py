@@ -323,6 +323,9 @@ def enrich_player_props(
         side = str(offer.get("side") or "")
         l10_values, l5_values = cached["l10_values"], cached["l5_values"]
         minutes = [x for x in cached["l10_minutes"] if x is not None]
+        # Store the canonical SportsDataverse/NBA player ID resolved by name or ID.
+        # The provider's raw player_id is not guaranteed to use the NBA ID namespace.
+        copy["player_id"] = player_id
         copy["player_position"] = cached.get("position")
         copy["player_position_name"] = cached.get("position_name")
         copy["position_source"] = cached.get("position_source")
