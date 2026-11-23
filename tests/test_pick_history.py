@@ -83,6 +83,11 @@ def test_capture_daily_picks_only_once_and_settle(tmp_path, monkeypatch):
         "min": "30:00",
     }]
     second_run = datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc)
+    # A player row by itself must not settle a pick while ESPN has not confirmed Final.
+    update_pick_history([], logs, site_data, second_run, games=[], finalized_games=set())
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    assert saved["days"]["2026-11-24"]["picks"][0]["result"] == "PENDING"
+
     update_pick_history([], logs, site_data, second_run, games=[], finalized_games=_finalized())
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
     settled = saved["days"]["2026-11-24"]["picks"][0]
