@@ -1,8 +1,8 @@
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function marketName(k){return String(k||'').replace(/^player_/,'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}
-let allOdds=[];let visibleOdds=200;
-function renderOdds(items){
- allOdds=items||[];visibleOdds=200;drawOdds();
+let allOdds=[];let visibleOdds=200;let playerAnalysis={};
+function renderOdds(items,analysis){
+ allOdds=items||[];playerAnalysis=analysis||{};visibleOdds=200;drawOdds();
 }
 function drawOdds(){
  const box=document.getElementById('odds');
@@ -12,7 +12,13 @@ function drawOdds(){
  if(!filtered.length){box.innerHTML='<article class="provider"><b>Brak pasujących linii</b><p>Zmień wyszukiwaną frazę albo poczekaj na kolejną aktualizację.</p></article>';document.getElementById('odds-more').hidden=true;return}
  box.innerHTML=filtered.slice(0,visibleOdds).map(x=>{
   const start=x.commence_time?new Date(x.commence_time).toLocaleString('pl-PL',{dateStyle:'short',timeStyle:'short'}):'Termin nieznany';
-  return '<article class="provider"><div class="odds-head"><b>'+esc(x.player)+'</b><span class="pill">'+esc(x.side)+' '+esc(x.line)+'</span></div><p>'+esc(marketName(x.market))+' · '+esc(x.home_team||'')+' – '+esc(x.away_team||'')+'</p><div class="odds-price"><strong>'+Number(x.decimal_odds).toFixed(2)+'</strong><span>'+esc(x.bookmaker)+'</span></div><small>Mecz: '+esc(start)+' · kurs zaktualizowany '+esc(x.age_seconds)+' s temu</small></article>'
+  const f=x.form;
+  const l10=f?.l10?('L10: '+f.l10.hits+'/'+f.l10.decided+(f.l10.pushes?' · push '+f.l10.pushes:'')+(f.l10.rate!==null?' ('+Math.round(f.l10.rate*100)+'%)':'')):'L10: brak historii';
+  const l5=f?.l5?('L5: '+f.l5.hits+'/'+f.l5.decided+(f.l5.pushes?' · push '+f.l5.pushes:'')):'L5: —';
+  const analysis=playerAnalysis[x.analysis_key]||{};
+  const splits=(analysis.teammate_splits||[]).slice(0,2);
+  const splitHtml=splits.length?splits.map(z=>'<div class="split-line"><b>'+esc(z.teammate)+'</b>: z nim '+esc(z.active_games)+' mecz. avg '+esc(z.average_with_active)+' · bez niego '+esc(z.out_games)+' mecz. avg '+esc(z.average_with_out)+' · różnica '+(z.delta_average>0?'+':'')+esc(z.delta_average)+(z.confidence==='small_sample'?' · mała próba':'')+'</div>').join(''):'<div class="split-line muted">Brak wystarczającej próby potwierdzonych absencji konkretnych kolegów z drużyny</div>';
+  return '<article class="provider"><div class="odds-head"><b>'+esc(x.player)+'</b><span class="pill">'+esc(x.side)+' '+esc(x.line)+'</span></div><p>'+esc(marketName(x.market))+' · '+esc(x.home_team||'')+' – '+esc(x.away_team||'')+'</p><div class="odds-price"><strong>'+Number(x.decimal_odds).toFixed(2)+'</strong><span>'+esc(x.bookmaker)+'</span></div><div class="form-row"><b>'+esc(l10)+'</b><span>'+esc(l5)+'</span></div>'+(f?'<small>Średnia L10: '+esc(f.average_l10)+' · minuty: '+esc(f.average_minutes_l10)+' · próba: '+esc(f.sample_size)+'</small>':'<small>Statystyki historyczne niedostępne lub zawodnik nie został jednoznacznie dopasowany</small>')+'<div class="split-box">'+splitHtml+'</div><small>Mecz: '+esc(start)+' · kurs zaktualizowany '+esc(x.age_seconds)+' s temu</small></article>'
  }).join('');
  const more=document.getElementById('odds-more');
  more.hidden=filtered.length<=visibleOdds;
@@ -37,7 +43,7 @@ async function loadSnapshot(){
   const res=await fetch('./data/latest.json?ts='+Date.now(),{cache:'no-store'});
   if(!res.ok)throw new Error('Nie udało się pobrać snapshotu ('+res.status+')');
   const data=await res.json();
-  renderOdds(data.odds||[]);renderInjuries(data.injuries||[]);renderGames(data.games||[]);
+  renderOdds(data.odds||[],data.player_analysis||{});renderInjuries(data.injuries||[]);renderGames(data.games||[]);
   const sources=data.sources||[];
   const ok=sources.filter(s=>s.available).length;
   const status=sources.length&&ok===sources.length?'● WSZYSTKIE ŹRÓDŁA OK':ok?'● DANE CZĘŚCIOWE':'● BRAK DANYCH';
