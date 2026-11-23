@@ -48,7 +48,7 @@ def test_enrichment_computes_l10_and_explicit_teammate_absence_split():
                 "pts": "10", "reb": "3", "ast": "3",
             })
     offer = {"player": "Player One", "player_id": None, "market": "player_points",
-             "line": 22.5, "side": "Over"}
+             "line": 27.5, "side": "Over"}
     enriched, summary, analysis = enrich_player_props([offer], logs, injuries)
     form = enriched[0]["form"]
     assert form["sample_size"] == 4
