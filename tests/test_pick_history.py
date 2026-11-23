@@ -41,6 +41,27 @@ def test_does_not_capture_before_first_tipoff(tmp_path, monkeypatch):
     assert saved["days"] == {}
 
 
+
+def test_game_at_warsaw_midnight_is_archived_under_new_local_day(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    site_data = tmp_path / "site" / "data"
+    board = _board()
+    board[0]["commence_time"] = "2026-11-23T23:00:00Z"
+    games = [{"id": "event-1", "date": "2026-11-23T23:00:00Z", "status_state": "pre"}]
+
+    before_midnight = datetime(2026, 11, 23, 22, 59, tzinfo=timezone.utc)
+    result = update_pick_history(board, [], site_data, before_midnight, games=games)
+    assert result["capture_day"] is None
+    assert result["today_picks"] == 0
+
+    after_midnight = datetime(2026, 11, 23, 23, 7, tzinfo=timezone.utc)
+    result = update_pick_history(board, [], site_data, after_midnight, games=games)
+    assert result["capture_day"] == "2026-11-24"
+    assert result["today_picks"] == 1
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    assert "2026-11-24" in saved["days"]
+
+
 def test_capture_retries_after_delayed_workflow_without_90_minute_cutoff(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     site_data = tmp_path / "site" / "data"
