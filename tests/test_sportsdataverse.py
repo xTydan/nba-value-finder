@@ -69,3 +69,30 @@ def test_combined_prop_markets_are_derived_from_box_score_components():
     assert _stat_value(row, "player_points_rebounds") == 28
     assert _stat_value(row, "player_points_assists") == 26
     assert _stat_value(row, "player_rebounds_assists") == 12
+
+
+def test_injury_filter_keeps_starters_and_core_rotation_only():
+    from app.sportsdataverse import filter_impact_injuries
+
+    logs = [
+        {"player_id": "p1", "player_name": "Starter One", "game_date": f"2026-11-{i:02d}",
+         "min": "31", "start_position": "PG"}
+        for i in range(1, 7)
+    ] + [
+        {"player_id": "p2", "player_name": "Bench One", "game_date": f"2026-11-{i:02d}",
+         "min": "8", "start_position": ""}
+        for i in range(1, 7)
+    ] + [
+        {"player_id": "p3", "player_name": "Sixth Player", "game_date": f"2026-11-{i:02d}",
+         "min": "27", "start_position": ""}
+        for i in range(1, 7)
+    ]
+    injuries = [
+        {"player_id": "p1", "player": "Starter One", "team": "Team", "status": "Out"},
+        {"player_id": "p2", "player": "Bench One", "team": "Team", "status": "Out"},
+        {"player_id": "p3", "player": "Sixth Player", "team": "Team", "status": "Questionable"},
+    ]
+    result = filter_impact_injuries(injuries, logs)
+    assert [row["player"] for row in result] == ["Starter One", "Sixth Player"]
+    assert result[0]["rotation_role"] == "Starter"
+    assert result[1]["rotation_role"] == "Ważna rotacja"
