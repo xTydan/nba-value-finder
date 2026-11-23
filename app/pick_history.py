@@ -52,7 +52,12 @@ def _pick_side(row: dict[str, Any]) -> tuple[str, int, dict[str, Any] | None]:
     return side, hits, quote
 
 
-def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value) -> bool:
+def _team_key(value: Any) -> str:
+    import re
+    return re.sub(r"[^a-z0-9]", "", str(value or "").casefold())
+
+
+def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value, finalized_games: set[tuple[str, str, str]]) -> bool:
     changed = False
     for pick in day_data.get("picks", []):
         if pick.get("result") != "PENDING":
@@ -60,6 +65,10 @@ def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value) ->
         player_id = str(pick.get("player_id") or "")
         game_day = pick.get("game_date_et")
         if not game_day:
+            continue
+        home = _team_key(pick.get("home_team"))
+        away = _team_key(pick.get("away_team"))
+        if not home or not away or (game_day, home, away) not in finalized_games:
             continue
         matching = [
             row for row in logs
@@ -101,6 +110,7 @@ def update_pick_history(
     site_data_dir: Path,
     now: datetime | None = None,
     games: list[dict[str, Any]] | None = None,
+    finalized_games: set[tuple[str, str, str]] | None = None,
 ) -> dict[str, Any]:
     """Settle archived picks and freeze picks on the first build at/after local tipoff."""
     from app.sportsdataverse import _stat_value
@@ -142,8 +152,9 @@ def update_pick_history(
     history.setdefault("days", {})
 
     changed = False
+    finalized_games = finalized_games or set()
     for day_data in history["days"].values():
-        if _settle(day_data, logs, _stat_value):
+        if _settle(day_data, logs, _stat_value, finalized_games):
             changed = True
 
     if capture_day and capture_day not in history["days"] and board:
