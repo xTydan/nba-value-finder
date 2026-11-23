@@ -8,7 +8,7 @@ Publiczny, statyczny portal do wyszukiwania opłacalnych linii statystycznych za
 2. Skaner pobiera przedmeczowe player props z PropLine, aktualny raport absencji i terminarz z ESPN oraz bieżącego sezonu NBA game logs i historyczne oficjalne raporty absencji przetworzone przez SportsDataverse.
 3. Dane są normalizowane i zapisywane do `site/data/latest.json`.
 4. GitHub Pages publikuje statyczną stronę. Przeglądarka nie łączy się bezpośrednio z API bukmacherskim, a klucz PropLine nigdy nie trafia do frontendu.
-5. TOP VALUE pozostaje pusty, dopóki model prawdopodobieństwa nie przejdzie walidacji. Same linie i pokrycie L10 nie są wystarczającą podstawą do rekomendacji.
+5. Publiczny widok pokazuje wyłącznie kwalifikujące się value picks. Surowy katalog linii nie jest publikowany.\n6. Selekcja porównuje kurs konkretnego bukmachera z medianą prawdopodobieństw bez marży (no-vig) z co najmniej dwóch innych bukmacherów dla dokładnie tej samej linii i rynku. Kurs kandydata nie bierze udziału w wyliczaniu własnego benchmarku.\n7. Wymagamy kursu 1.60–2.20, edge co najmniej 2.5 pp, EV co najmniej 4%, kompletnych par Over/Under u minimum trzech bukmacherów łącznie i co najmniej 8 meczów historii zawodnika.\n8. Jest to na tym etapie wykrywanie rozbieżności cenowych rynku (line shopping), a nie skalibrowany model przewidywania wyników. L10 i analiza absencji są kontekstem, nie źródłem fair probability.
 
 ## Jednorazowa konfiguracja GitHub Pages
 
@@ -45,8 +45,8 @@ Nie umieszczaj klucza w plikach repozytorium, JavaScript ani w danych publikowan
 - [ ] Publikacja GitHub Pages (wymaga jednorazowego włączenia Pages w Settings).
 - [ ] Pobieranie i normalizacja game logów całej ligi.
 - [ ] Historyczne statusy dostępności zawodników i analiza absencji konkretnych teammate'ów.
-- [ ] Model rozkładu wyników, kalibracja prawdopodobieństw i EV.
-- [ ] Walidacja out-of-sample i dopiero potem publikowanie TOP VALUE.
+- [x] Konserwatywny selektor rozbieżności kursowych oparty o niezależny no-vig consensus.\n- [ ] Model rozkładu wyników, kalibracja prawdopodobieństw i EV z walidacją out-of-sample.
+- [ ] Walidacja out-of-sample modelu predykcyjnego i backtest.
 - [ ] Rozliczanie historycznych typów i monitoring jakości modelu.
 
 ## Uruchomienie lokalne (opcjonalne)
