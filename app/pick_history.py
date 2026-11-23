@@ -26,6 +26,9 @@ def _event_day_et(value: Any) -> str | None:
 
 def _number(value: Any) -> float | None:
     try:
+        if isinstance(value, str) and ":" in value:
+            minutes, seconds = value.split(":", 1)
+            return float(minutes) + float(seconds) / 60.0
         number = float(value)
         return number if number == number and abs(number) != float("inf") else None
     except (TypeError, ValueError):
@@ -60,7 +63,10 @@ def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value) ->
             continue
         matching = [
             row for row in logs
-            if str(row.get("player_id") or "") == player_id
+            if (
+                (player_id and str(row.get("player_id") or "") == player_id)
+                or (not player_id and str(row.get("player_name") or "").casefold() == str(pick.get("player") or "").casefold())
+            )
             and str(row.get("game_date") or "")[:10] == game_day
         ]
         if not matching:
