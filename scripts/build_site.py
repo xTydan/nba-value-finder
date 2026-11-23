@@ -48,7 +48,7 @@ def main():
                 odds_items, logs, historical_injuries, positions=positions
             )
             analysis_summary["position_teams_queried"] = len(roster_teams)
-            analysis_summary["players_with_positions"] = len(positions)
+            analysis_summary["players_with_positions"] = len({value.get("player_id") for value in positions.values() if value.get("player_id")})
             stats_status["message"] = (
                 f"Game logs: {stats_meta['game_log_rows']}; injury-report rows: "
                 f"{stats_meta['injury_report_rows']}; last game in stats feed: "
