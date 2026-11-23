@@ -141,6 +141,7 @@ def main():
         f"enriched={analysis_summary['offers_enriched']}",
         f"player_analysis={len(player_analysis)}",
     )
+    print("Pick history:", json.dumps(history_status, ensure_ascii=False, sort_keys=True))
     for status in snapshot["sources"]:
         print(f"{status['name']}: {'OK' if status['available'] else 'UNAVAILABLE'}")
         if status["error"]:
