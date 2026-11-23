@@ -22,5 +22,6 @@ def test_snapshot_is_explicitly_not_publishing_unverified_picks(tmp_path, monkey
     build_site.main()
     data = json.loads((tmp_path / "site" / "data" / "latest.json").read_text())
     assert data["picks"] == []
-    assert data["odds"] == []
+    assert "odds" not in data
+    assert data["value_summary"]["qualified_picks"] == 0
     assert all(not source["available"] for source in data["sources"])
