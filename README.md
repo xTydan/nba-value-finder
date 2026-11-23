@@ -1,33 +1,61 @@
-# NBA Value Finder — starter
+# NBA Value Finder
 
-Public-web-app foundation for discovering NBA player-prop opportunities.
+Publiczny, statyczny portal do wyszukiwania opłacalnych linii statystycznych zawodników NBA.
 
-## Run locally (Windows)
-1. Install Python 3.11+.
-2. Clone or download this repository.
-3. In the project directory run:
-   ```powershell
-   py -m venv .venv
-   .venv\Scripts\Activate.ps1
-   pip install -r requirements.txt
-   Copy-Item .env.example .env
-   uvicorn app.main:app --reload
-   ```
-4. Open http://127.0.0.1:8000
+## Jak działa strona
 
-## Current status
-This is a working application foundation: FastAPI backend, responsive dashboard, SQLite schema, analysis primitives, and tests. It deliberately shows **zero verified picks** until real odds/injury/stat providers are configured. It does not invent bookmaker lines, injury reports, or player results.
+1. GitHub Actions uruchamia skaner co 30 minut (minuty 07 i 37 każdej godziny).
+2. Skaner pobiera przedmeczowe player props z PropLine, raport absencji i terminarz z ESPN.
+3. Dane są normalizowane i zapisywane do `site/data/latest.json`.
+4. GitHub Pages publikuje statyczną stronę. Przeglądarka nie łączy się bezpośrednio z API bukmacherskim, a klucz PropLine nigdy nie trafia do frontendu.
+5. TOP VALUE pozostaje pusty, dopóki model prawdopodobieństwa nie przejdzie walidacji. Same linie i pokrycie L10 nie są wystarczającą podstawą do rekomendacji.
 
-## Connected data source\n- ESPN public NBA endpoints: daily scoreboard, league injury report, and athlete game logs. No API key is required. These endpoints are undocumented and may change; failures are reported instead of replaced with sample data.\n- API routes: `/api/games`, `/api/injuries`, `/api/players/{player_id}/gamelog`, and `/api/status`.\n\n## Data policy
-- The scanner fetches current source data on demand; no permanent historical database is required for its initial operation. A short in-memory cache may reduce repeated requests.
-- Player-prop odds are taken only from verified live sources. Superbet Poland and STS Poland are preferred when their player markets are actually available; other bookmakers may be used when needed, but the real bookmaker name is always shown and never substituted.
-- See [Live data policy](docs/LIVE_DATA_POLICY.md) for source selection, freshness checks and limitations.
+## Jednorazowa konfiguracja GitHub Pages
 
-## Next integration work
-- Implement and validate a live NBA stats/game-log provider.
-- Implement injury report and historical player availability provider.
-- Validate live PropLine player-prop coverage and then build the probability/value model; Superbet/STS player props are not confirmed in this feed.
-- Store timestamped snapshots, run scheduled refresh every 15 minutes, and settle predictions.
-- Deploy to a public host with persistent PostgreSQL.
+W repozytorium otwórz **Settings → Pages → Build and deployment** i ustaw **Source: GitHub Actions**. Workflow podejmuje też próbę automatycznego włączenia Pages, ale token GitHub Actions może nie mieć uprawnień administracyjnych.
 
-A public URL cannot be created from this source package alone; hosting credentials and provider access are required.
+Po włączeniu Pages workflow opublikuje stronę. Adres będzie miał postać:
+
+`https://xtydan.github.io/nba-value-finder/`
+
+## Sekrety
+
+W Settings → Secrets and variables → Actions wymagany jest sekret:
+
+- `ODDS_API_KEY` — klucz PropLine. Tylko workflow po stronie serwera ma do niego dostęp.
+
+Nie umieszczaj klucza w plikach repozytorium, JavaScript ani w danych publikowanych na stronie.
+
+## Aktualne źródła i ograniczenia
+
+- ESPN public endpoints: terminarz, raport kontuzji i game logs.
+- PropLine: zbiorczy feed NBA player props. Do publicznego widoku dopuszczamy wyłącznie rozpoznanych operatorów bukmacherskich; platformy fantasy i rynki predykcyjne są odrzucane.
+- Superbet PL i STS nie są potwierdzonymi źródłami NBA player props w PropLine, więc nie będą wyświetlane pod ich nazwami.
+- Linie są odrzucane, jeżeli mecz już się rozpoczął albo aktualizacja kursu jest starsza niż skonfigurowany limit.
+- Gdy źródło jest niedostępne, strona pokazuje brak danych zamiast udawać, że stare dane są aktualne.
+
+## Etapy rozwoju
+
+- [x] Połączenie z PropLine i test uwierzytelnienia.
+- [x] Automatyczny generator statycznego snapshotu.
+- [x] Harmonogram GitHub Actions co 30 minut.
+- [x] Frontend bez backendu działającego 24/7.
+- [x] Filtrowanie feedu do rozpoznanych bukmacherów.
+- [ ] Publikacja GitHub Pages (wymaga jednorazowego włączenia Pages w Settings).
+- [ ] Pobieranie i normalizacja game logów całej ligi.
+- [ ] Historyczne statusy dostępności zawodników i analiza absencji konkretnych teammate'ów.
+- [ ] Model rozkładu wyników, kalibracja prawdopodobieństw i EV.
+- [ ] Walidacja out-of-sample i dopiero potem publikowanie TOP VALUE.
+- [ ] Rozliczanie historycznych typów i monitoring jakości modelu.
+
+## Uruchomienie lokalne (opcjonalne)
+
+```powershell
+py -m venv .venv
+.venv\\Scripts\\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+uvicorn app.main:app --reload
+```
+
+Lokalny backend jest narzędziem developerskim. Docelowa publiczna strona korzysta z danych wygenerowanych przez GitHub Actions.
