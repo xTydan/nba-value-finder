@@ -1,62 +1,40 @@
-# NBA Value Finder
+# NBA Player Props
 
-Publiczny, statyczny portal do wyszukiwania opłacalnych linii statystycznych zawodników NBA.
+Statyczny portal do przeglądania przedmeczowych linii statystycznych zawodników NBA według pokrycia w ostatnich meczach.
 
-## Jak działa strona
+## Jak działa
 
-1. GitHub Actions uruchamia skaner co 30 minut (minuty 07 i 37 każdej godziny).
-2. Skaner pobiera przedmeczowe player props z PropLine, aktualny raport absencji i terminarz z ESPN oraz bieżącego sezonu NBA game logs i historyczne oficjalne raporty absencji przetworzone przez SportsDataverse.
-3. Dane są normalizowane i zapisywane do `site/data/latest.json`.
-4. GitHub Pages publikuje statyczną stronę. Przeglądarka nie łączy się bezpośrednio z API bukmacherskim, a klucz PropLine nigdy nie trafia do frontendu.
-5. Publiczny widok pokazuje wyłącznie kwalifikujące się value picks. Surowy katalog linii nie jest publikowany.\n6. Selekcja porównuje kurs konkretnego bukmachera z medianą prawdopodobieństw bez marży (no-vig) z co najmniej dwóch innych bukmacherów dla dokładnie tej samej linii i rynku. Kurs kandydata nie bierze udziału w wyliczaniu własnego benchmarku.\n7. Wymagamy kursu 1.60–2.20, edge co najmniej 2.5 pp, EV co najmniej 4%, kompletnych par Over/Under u minimum trzech bukmacherów łącznie i co najmniej 8 meczów historii zawodnika.\n8. Jest to na tym etapie wykrywanie rozbieżności cenowych rynku (line shopping), a nie skalibrowany model przewidywania wyników. L10 i analiza absencji są kontekstem, nie źródłem fair probability.
+1. GitHub Actions odświeża dane co 30 minut.
+2. Kursy player props pobierane są z PropLine; raport absencji i terminarz z ESPN; statystyki zawodników i historyczne raporty absencji z SportsDataverse.
+3. Linie są łączone z historią zawodnika po identyfikatorze i zweryfikowanej nazwie.
+4. Ranking pokazuje pokrycie Over i Under dla każdej konkretnej linii, wyniki ostatnich meczów, średnią, minuty oraz dostępne kursy obu stron.
+5. Strona jest statyczna i publikowana przez GitHub Pages. Klucz API pozostaje w sekrecie GitHub Actions.
 
-## Jednorazowa konfiguracja GitHub Pages
+## Ranking i filtry
 
-W repozytorium otwórz **Settings → Pages → Build and deployment** i ustaw **Source: GitHub Actions**. Workflow podejmuje też próbę automatycznego włączenia Pages, ale token GitHub Actions może nie mieć uprawnień administracyjnych.
+- Filtr statystyki: punkty, zbiórki, asysty, trójki, przechwyty, bloki, straty, P+R, P+A, R+A, PRA i bloki + przechwyty.
+- Sortowanie: najwyższe pokrycie, średnia z ostatnich meczów, kurs, średnie minuty.
+- Wyszukiwanie zawodnika.
+- Pokrycie jest liczone jako liczba meczów, w których wynik był powyżej lub poniżej dokładnej linii. Push jest osobno oznaczony.
+- Do rankingu trafiają linie z minimum 5 meczami historii. Jeśli gracz rozegrał mniej niż 10 spotkań w dostępnym feedzie sezonu, pokazujemy faktyczną liczbę, nie dopisujemy brakujących meczów.
+- Pokrycie historyczne nie jest prognozą prawdopodobieństwa ani gwarancją wyniku.
 
-Po włączeniu Pages workflow opublikuje stronę. Adres będzie miał postać:
+## Bukmacherzy
 
-`https://xtydan.github.io/nba-value-finder/`
+PropLine dokumentuje Superbet PL i STS jako źródła linii meczowych NBA, ale nie potwierdza dla nich NBA player props. Dlatego portal nie będzie przypisywał im kursów zawodników, których feed faktycznie nie dostarcza. Gdy te rynki zostaną udostępnione, parser dopuści ich rzeczywiste oferty. Obecnie widoczne są wyłącznie kursy operatorów dostarczających player props.
 
-## Sekrety
+## Konfiguracja
 
-W Settings → Secrets and variables → Actions wymagany jest sekret:
+W GitHub → Settings → Secrets and variables → Actions ustaw sekret `ODDS_API_KEY` z kluczem PropLine.
 
-- `ODDS_API_KEY` — klucz PropLine. Tylko workflow po stronie serwera ma do niego dostęp.
+GitHub Pages: Settings → Pages → Source: GitHub Actions.
 
-Nie umieszczaj klucza w plikach repozytorium, JavaScript ani w danych publikowanych na stronie.
+Adres: https://xtydan.github.io/nba-value-finder/
 
-## Aktualne źródła i ograniczenia
+## Zasady jakości danych
 
-- ESPN public endpoints: terminarz i bieżący raport kontuzji.
-- SportsDataverse: bieżący sezon NBA player game logs oraz historyczne wersje oficjalnych raportów absencji NBA. Pliki są cache'owane w GitHub Actions; na kartach pokazujemy datę ostatniego meczu w źródle.
-- PropLine: zbiorczy feed NBA player props. Do publicznego widoku dopuszczamy wyłącznie rozpoznanych operatorów bukmacherskich; platformy fantasy i rynki predykcyjne są odrzucane.
-- Superbet PL i STS nie są potwierdzonymi źródłami NBA player props w PropLine, więc nie będą wyświetlane pod ich nazwami.
-- Linie są odrzucane, jeżeli mecz już się rozpoczął albo aktualizacja kursu jest starsza niż skonfigurowany limit.
-- Gdy źródło jest niedostępne, strona pokazuje brak danych zamiast udawać, że stare dane są aktualne.
-
-## Etapy rozwoju
-
-- [x] Połączenie z PropLine i test uwierzytelnienia.
-- [x] Automatyczny generator statycznego snapshotu.
-- [x] Harmonogram GitHub Actions co 30 minut.
-- [x] Frontend bez backendu działającego 24/7.
-- [x] Filtrowanie feedu do rozpoznanych bukmacherów.
-- [ ] Publikacja GitHub Pages (wymaga jednorazowego włączenia Pages w Settings).
-- [ ] Pobieranie i normalizacja game logów całej ligi.
-- [ ] Historyczne statusy dostępności zawodników i analiza absencji konkretnych teammate'ów.
-- [x] Konserwatywny selektor rozbieżności kursowych oparty o niezależny no-vig consensus.\n- [ ] Model rozkładu wyników, kalibracja prawdopodobieństw i EV z walidacją out-of-sample.
-- [ ] Walidacja out-of-sample modelu predykcyjnego i backtest.
-- [ ] Rozliczanie historycznych typów i monitoring jakości modelu.
-
-## Uruchomienie lokalne (opcjonalne)
-
-```powershell
-py -m venv .venv
-.venv\\Scripts\\Activate.ps1
-pip install -r requirements.txt
-Copy-Item .env.example .env
-uvicorn app.main:app --reload
-```
-
-Lokalny backend jest narzędziem developerskim. Docelowa publiczna strona korzysta z danych wygenerowanych przez GitHub Actions.
+- Nie generujemy fikcyjnych linii ani kursów.
+- Nie pokazujemy kursów z meczu, który już się rozpoczął.
+- Stare kursy są odrzucane.
+- Brak historii lub niejednoznaczne dopasowanie zawodnika oznacza brak tej linii w rankingu.
+- Analiza wpływu absencji teammate'ów jest opisowa; małe próby nie są przedstawiane jako dowód przyczynowości.
