@@ -117,13 +117,13 @@ def load_current_season() -> tuple[list[dict[str, str]], list[dict[str, str]], d
 
 
 
-def _parse_report_time(value: Any) -> datetime | None:
+def _parse_timestamp(value: Any, naive_timezone) -> datetime | None:
     try:
         parsed = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
     except (TypeError, ValueError):
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=ZoneInfo("America/New_York"))
+        parsed = parsed.replace(tzinfo=naive_timezone)
     return parsed.astimezone(timezone.utc)
 
 
@@ -133,7 +133,7 @@ def _keep_pregame_reports(
     tipoffs: dict[str, datetime] = {}
     for row in schedules:
         game_id = str(row.get("game_id") or "").strip()
-        tipoff = _parse_report_time(row.get("game_date_time_utc"))
+        tipoff = _parse_timestamp(row.get("game_date_time_utc"), timezone.utc)
         if game_id and tipoff:
             tipoffs[game_id] = tipoff
 
@@ -141,7 +141,7 @@ def _keep_pregame_reports(
     for row in injuries:
         game_id = str(row.get("game_id") or "").strip()
         tipoff = tipoffs.get(game_id)
-        report_time = _parse_report_time(row.get("report_datetime"))
+        report_time = _parse_timestamp(row.get("report_datetime"), ZoneInfo("America/New_York"))
         if tipoff and report_time and report_time < tipoff:
             kept.append(row)
     return kept
