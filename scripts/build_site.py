@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app import espn, prop_line, sportsdataverse
-from app.value_model import find_value_picks
+from app.props_board import build_props_board
 from app.espn import ESPNError
 from app.prop_line import PropLineError
 
@@ -69,12 +69,8 @@ def main():
         if day:
             games.extend(day.get("events", []))
 
-    picks, value_summary = find_value_picks(odds_items)
-    picks_status = (
-        "No qualified value discrepancies at current thresholds."
-        if not picks else
-        "Market-relative value candidates found; this is not a calibrated player-outcome prediction model."
-    )
+    props_board = build_props_board(odds_items)
+    board_status = "Dane historyczne niedostępne — brak pełnego rankingu L10." if not stats_meta else f"Linie z historią co najmniej 5 meczów: {len(props_board)}."
 
     snapshot = {
         "generated_at": now.isoformat(),
@@ -87,9 +83,8 @@ def main():
         "bookmakers": (odds or {}).get("bookmakers", []),
         "injuries": (injuries or {}).get("players", []),
         "games": games,
-        "picks": picks,
-        "picks_status": picks_status,
-        "value_summary": value_summary,
+        "props_board": props_board,
+        "board_status": board_status,
         "policy": "No synthetic lines or picks. Missing source data stays unavailable.",
     }
     (SITE / "data").mkdir(exist_ok=True)
@@ -122,7 +117,7 @@ def main():
         f"odds={snapshot['odds_count']}",
         f"injuries={len(snapshot['injuries'])}",
         f"games={len(games)}",
-        f"picks={len(snapshot['picks'])}",
+        f"props_board={len(snapshot['props_board'])}",
         f"enriched={analysis_summary['offers_enriched']}",
         f"player_analysis={len(player_analysis)}",
     )
