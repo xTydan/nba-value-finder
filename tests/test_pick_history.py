@@ -55,7 +55,7 @@ def test_capture_daily_picks_only_at_first_tipoff_and_settle(tmp_path, monkeypat
     logs = [{
         "player_id": "123",
         "player_name": "Keaton Wagler",
-        "game_date": "2026-11-24",
+        "game_date": "2026-11-23",
         "pts": "10",
         "reb": "5",
         "ast": "5",
