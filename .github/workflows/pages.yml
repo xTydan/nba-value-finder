@@ -5,11 +5,12 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "0,7,37 * * * *"
+    # Avoid the top-of-hour congestion window; retry often in case GitHub delays a run.
+    - cron: "3,13,23,33,43,53 * * * *"
 
 concurrency:
   group: nba-value-finder-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
