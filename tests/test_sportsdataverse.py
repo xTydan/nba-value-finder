@@ -142,3 +142,49 @@ def test_lineup_splits_are_limited_to_last_ten_and_mark_same_position():
     assert split["same_position"] is True
     assert split["average_with_out"] == 20
     assert split["average_with_active"] == 10
+
+
+
+def test_lineup_splits_ignore_teammates_below_fifteen_minutes():
+    from app.sportsdataverse import _teammate_splits
+
+    logs_by_game_team = {}
+    reports_by_game_team = {}
+    played = set()
+    target_rows = []
+    for i in range(4):
+        game = f"rotation-{i}"
+        target_rows.append({
+            "player_id": "target", "player_name": "Target Player",
+            "game_id": game, "team_id": "10", "game_date": f"2026-11-{i + 1:02d}",
+            "min": "34", "pts": "20", "reb": "5", "ast": "4",
+        })
+        teammates = []
+        if i < 2:
+            teammates.extend([
+                {"player_id": "starter", "player_name": "Rotation Starter",
+                 "game_id": game, "team_id": "10", "min": "25"},
+                {"player_id": "fringe", "player_name": "Fringe Player",
+                 "game_id": game, "team_id": "10", "min": "8"},
+            ])
+            played.update({(game, "starter"), (game, "fringe")})
+        else:
+            reports_by_game_team[(game, "10")] = [
+                {"person_id": "starter", "current_status": "Out",
+                 "report_player_name": "Starter, Rotation"},
+                {"person_id": "fringe", "current_status": "Out",
+                 "report_player_name": "Player, Fringe"},
+            ]
+        logs_by_game_team[(game, "10")] = [
+            target_rows[-1], *teammates
+        ]
+
+    splits = _teammate_splits(
+        "target", target_rows, "player_points", logs_by_game_team,
+        reports_by_game_team, played,
+        {"target": {"position": "SF"}, "starter": {"position": "SF"},
+         "fringe": {"position": "SF"}},
+    )
+
+    assert [row["teammate_id"] for row in splits] == ["starter"]
+    assert splits[0]["average_teammate_minutes"] == 25
