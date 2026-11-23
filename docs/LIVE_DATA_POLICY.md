@@ -44,7 +44,7 @@ The scanner fetches current source data on demand. A permanent local archive is 
 
 - WagerWise offers a free-to-browse player-prop comparison page, but its API is described as beta with no SLA and requires a bearer token. Treat it as a backup, not the primary production feed.
 - Stat Pick advertises an unauthenticated public API, but its developer page returned 404 when checked. Do not integrate until the API is independently reachable and documented.
-- Aggregators may not cover Polish-market operators such as STS or Superbet for every NBA player market. Bookmaker coverage must be verified from actual returned rows, not inferred from a logo or marketing list.
+- Important bookmaker limitation: PropLine's own bookmaker catalog lists Superbet PL and STS as NBA game-lines sources, but does not list NBA player props for either. It lists player props for selected other operators (for example, Lottomatica, ePlay24, William Hill IT, Novig and ProphetX). Thus PropLine is a candidate for real NBA player-prop odds from other books, not a confirmed solution for Superbet/STS player props. Bookmaker coverage must be verified from actual returned rows, not inferred from a logo or marketing list.
 
 ## Integration rules
 
