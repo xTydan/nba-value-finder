@@ -47,7 +47,7 @@ def _name_value(value: Any) -> str | None:
     if isinstance(value, str):
         return value.strip() or None
     if isinstance(value, dict):
-        for key in ("displayName", "fullName", "shortDisplayName", "name", "abbreviation"):
+        for key in ("displayName", "fullName", "shortDisplayName", "description", "name", "abbreviation"):
             found = _name_value(value.get(key))
             if found:
                 return found
