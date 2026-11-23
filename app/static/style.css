@@ -48,3 +48,49 @@
 .recent-game-cell small{max-width:100%;font-size:9px;line-height:1.25;color:#8392a7;overflow-wrap:anywhere}
 .quote.preferred{border-color:#6a5731;background:#171b20}
 @media(max-width:600px){.recent-games-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.match-select{min-height:100px}}
+
+/* Compact, higher-contrast player prop cards */
+.pick-grid{gap:10px;align-items:start}
+.pick-card{padding:13px 14px;border-radius:10px;background:linear-gradient(145deg,#192638,#121a26);border-color:#3a4b62;box-shadow:0 5px 16px #0003}
+.pick-top{gap:8px}
+.pick-market{font-size:10px;letter-spacing:.5px;color:#c5d2e3}
+.coverage-badge{padding:5px 8px;font-size:9px;color:#ffe0a0;background:#493719;border:1px solid #765627}
+.pick-player{font-size:19px;margin-top:8px;line-height:1.2}
+.pick-match{font-size:11px;color:#a9b8cc;margin-top:4px}
+.line-heading{gap:8px 12px;padding:9px 10px;margin:10px 0}
+.line-heading strong{font-size:20px;color:#ffd071}
+.line-heading span{font-size:10px;color:#c0ccdc}
+.line-heading span:first-child{color:#a8b6ca}
+.coverage-grid{gap:7px}
+.coverage{padding:9px 10px;border:1px solid #35465c;background:#1d2a3b}
+.coverage small{font-size:9px;color:#c0ccdc;letter-spacing:.4px}
+.coverage strong{font-size:21px}
+.coverage span{font-size:13px}
+.coverage.over{background:#142d29;border-color:#28634e}
+.coverage.over strong,.coverage.over span{color:#83edb6}
+.coverage.under{background:#322123;border-color:#704044}
+.coverage.under strong,.coverage.under span{color:#ffaaa2}
+.recent-title{font-size:9px;color:#aebbd0;margin:10px 0 6px}
+.recent-games-grid{gap:5px;margin:7px 0 9px}
+.recent-game-cell{padding:5px 2px;gap:3px;background:#101a27;border-color:#34445a}
+.recent-game-cell .recent-chip{min-height:25px;font-size:10px}
+.recent-game-cell b{font-size:9px;color:#e0e8f2}
+.recent-game-cell small{font-size:8px;color:#a5b3c6}
+.recent-chip.hit{background:#17613f;color:#b4f8d1}
+.recent-chip.miss{background:#6a3030;color:#ffd0ca}
+.recent-chip.push{background:#625020;color:#ffedab}
+.quote-grid{gap:7px;margin:9px 0}
+.quote{padding:8px 9px;background:#101a27;border-color:#34445a}
+.quote small{font-size:8px;color:#aebbd0}
+.quote b{font-size:17px;color:#ffd071}
+.quote span{font-size:9px;color:#c0ccdc}
+.quote.preferred{border-color:#98733b;background:#282315}
+.split-box{margin:8px 0;padding:7px 9px;background:#111b29;border:1px solid #2c3d52}
+.split-line{font-size:10px;color:#c2cede}
+.pick-foot{font-size:9px;color:#9aa9bd}
+.match-select{padding:13px;min-height:94px;background:#182435;border-color:#3b4d65}
+.match-select b{font-size:14px;color:#f0f4fa}
+.match-select span,.match-select small{color:#b5c3d6}
+@media(min-width:1100px){.pick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:850px){.pick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.pick-grid{grid-template-columns:1fr}.pick-card{padding:12px}.recent-games-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
