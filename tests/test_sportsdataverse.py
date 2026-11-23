@@ -60,3 +60,18 @@ def test_enrichment_computes_l10_and_explicit_teammate_absence_split():
     assert split["out_games"] == 2
     assert split["average_with_out"] > split["average_with_active"]
     assert summary["offers_enriched"] == 1
+
+
+def test_only_pregame_injury_report_versions_are_used():
+    from app.sportsdataverse import _keep_pregame_reports
+    schedules = [{
+        "game_id": "g1",
+        "game_date_time_utc": "2026-11-02T00:00:00Z",
+    }]
+    injuries = [
+        {"game_id": "g1", "person_id": "p1", "report_datetime": "2026-11-01 18:00:00", "current_status": "Questionable"},
+        {"game_id": "g1", "person_id": "p1", "report_datetime": "2026-11-01 21:30:00", "current_status": "Out"},
+    ]
+    kept = _keep_pregame_reports(injuries, schedules)
+    assert len(kept) == 1
+    assert kept[0]["current_status"] == "Questionable"
