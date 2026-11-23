@@ -5,12 +5,15 @@ import json
 import shutil
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from app import espn, prop_line
 from app.espn import ESPNError
 from app.prop_line import PropLineError
 
-ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
 
 
