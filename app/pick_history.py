@@ -40,7 +40,7 @@ def _pick_side(row: dict[str, Any]) -> tuple[str, int, dict[str, Any] | None]:
     for side in ("over", "under"):
         hits = int(row.get(f"{side}_hits") or 0)
         quotes = row.get(f"{side}_quotes") or []
-        quote = next((q for q in quotes if _number(q.get("odds")) is not None), None)
+        quote = next((q for q in quotes if _number(q.get("odds")) is not None and 1.70 <= float(q["odds"]) <= 2.20), None)
         if quote:
             candidates.append((hits, side, quote))
     if not candidates:
@@ -59,7 +59,7 @@ def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value) ->
             continue
         player_id = str(pick.get("player_id") or "")
         game_day = pick.get("game_date_et")
-        if not player_id or not game_day:
+        if not game_day:
             continue
         matching = [
             row for row in logs
