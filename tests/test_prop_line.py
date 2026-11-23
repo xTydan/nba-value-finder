@@ -53,3 +53,11 @@ def test_parse_rejects_live_stale_and_dfs_prices():
         ]},
     ]
     assert _parse_events(payload, now, 900) == []
+
+
+def test_only_allowlisted_sportsbooks_are_kept():
+    from app.prop_line import _book_slug, ALLOWED_BOOKS
+    assert _book_slug("Hard Rock Bet") in ALLOWED_BOOKS
+    assert _book_slug("theScore Bet") in ALLOWED_BOOKS
+    assert _book_slug("PrizePicks") not in ALLOWED_BOOKS
+    assert _book_slug("Kalshi") not in ALLOWED_BOOKS
