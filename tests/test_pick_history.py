@@ -61,3 +61,22 @@ def test_history_uses_only_default_odds_band_and_requires_eight_hits(tmp_path, m
     result = update_pick_history(board, [], tmp_path / "site" / "data",
                                  datetime(2026, 11, 24, 16, 0, tzinfo=timezone.utc))
     assert result["today_picks"] == 0
+
+def test_dnp_box_score_row_is_void_even_when_stats_are_zero(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    site_data = tmp_path / "site" / "data"
+    first_run = datetime(2026, 11, 24, 16, 0, tzinfo=timezone.utc)
+    update_pick_history(_board(), [], site_data, first_run)
+    logs = [{
+        "player_id": "123",
+        "player_name": "Keaton Wagler",
+        "game_date": "2026-11-24",
+        "pts": "0",
+        "reb": "0",
+        "ast": "0",
+        "min": "0:00",
+    }]
+    update_pick_history([], logs, site_data,
+                        datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc))
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    assert saved["days"]["2026-11-24"]["picks"][0]["result"] == "VOID"
