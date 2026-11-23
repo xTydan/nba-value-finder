@@ -94,3 +94,14 @@
 @media(min-width:1100px){.pick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:850px){.pick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.pick-grid{grid-template-columns:1fr}.pick-card{padding:12px}.recent-games-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
+/* Compact homepage and match-specific injury panel */
+html{scroll-behavior:smooth;scroll-padding-top:18px}
+.games-panel{scroll-margin-top:18px}
+.match-injuries{margin-top:14px;padding:15px;background:#101a27;border:1px solid #34465d;border-radius:10px}
+.match-injuries h3{margin:0 0 10px;color:#f0c36b;font-size:13px}
+.match-injury{display:flex;flex-wrap:wrap;gap:6px 12px;padding:9px 0;border-top:1px solid #29384b}
+.match-injury b{color:#edf3fa}.match-injury span{color:#f1a39a;font-size:11px}.match-injury small{flex-basis:100%;color:#aab8cb}
+.match-injuries>p{margin:0;color:#aab8cb;line-height:1.5;font-size:12px}
+#picks{content-visibility:auto;contain-intrinsic-size:1000px}
+nav{position:sticky;top:0;z-index:10;background:#0d1119}
