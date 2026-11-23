@@ -1,9 +1,13 @@
+function byId(id){return document.getElementById(id)}
+function setText(id,value){const el=byId(id);if(el)el.textContent=value}
+function setHTML(id,value){const el=byId(id);if(el)el.innerHTML=value}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function marketName(k){return String(k||'').replace(/^player_/,'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}
 function renderPicks(items,analysis,status){
- const box=document.getElementById('picks');
+ const box=byId('picks');
+ if(!box)return;
  const picks=items||[];
- document.getElementById('pick-count').textContent=picks.length+' value '+(picks.length===1?'picki':'picków');
+ setText('pick-count',picks.length+' value '+(picks.length===1?'picki':'picków'));
  if(!picks.length){
   box.innerHTML='<article class="empty-state"><div class="empty-icon">⌁</div><h2>Brak zakładów spełniających kryteria</h2><p>To prawidłowy wynik skanera — nie publikujemy typów na siłę. Gdy kurs będzie wyraźnie lepszy od niezależnego konsensusu rynku i dane będą kompletne, propozycja pojawi się tutaj.</p><small>'+esc(status||'Progi selekcji są aktywne.')+'</small></article>';
   return;
@@ -17,12 +21,14 @@ function renderPicks(items,analysis,status){
  }).join('');
 }
 function renderInjuries(items){
- const box=document.getElementById('injuries-list');
+ const box=byId('injuries-list');
+ if(!box)return;
  if(!items.length){box.innerHTML='<article class="provider"><b>Brak wpisów w raporcie</b><p>Brak wpisu nie oznacza potwierdzonej pełnej dyspozycji.</p></article>';return}
  box.innerHTML=items.map(x=>'<article class="provider"><div class="odds-head"><b>'+esc(x.player||'Nieznany zawodnik')+'</b><span class="pill">'+esc(x.status||'STATUS NIEZNANY')+'</span></div><p>'+esc(x.team||'Drużyna nieznana')+(x.details?' · '+esc(x.details):'')+'</p><small>Źródło: ESPN · '+esc(x.date||'data aktualizacji niepodana')+'</small></article>').join('');
 }
 function renderGames(items){
- const box=document.getElementById('games-list');
+ const box=byId('games-list');
+ if(!box)return;
  if(!items.length){box.innerHTML='<article class="provider"><b>Brak meczów w pobranym terminarzu</b></article>';return}
  box.innerHTML=items.map(g=>{
   const teams=(g.competitors||[]).map(t=>esc(t.abbreviation||t.name||'TBD')).join(' vs ');
@@ -37,9 +43,9 @@ async function loadSnapshot(){
   const data=await res.json();
   renderPicks(data.picks||[],data.player_analysis||{},data.picks_status);renderInjuries(data.injuries||[]);renderGames(data.games||[]);
   const sources=data.sources||[],ok=sources.filter(s=>s.available).length;
-  document.getElementById('system-status').textContent=sources.length&&ok===sources.length?'● WSZYSTKIE ŹRÓDŁA OK':ok?'● DANE CZĘŚCIOWE':'● BRAK DANYCH';
-  document.getElementById('updated').textContent='Ostatnia analiza: '+new Date(data.generated_at).toLocaleString('pl-PL');
-  document.getElementById('providers').innerHTML=sources.map(s=>'<article class="provider"><div class="odds-head"><b>'+esc(s.name)+'</b><span class="pill '+(s.available?'online':'')+'">'+(s.available?'OK':'BRAK DANYCH')+'</span></div>'+(s.error?'<p>'+esc(s.error)+'</p>':(s.message?'<p>'+esc(s.message)+'</p>':'<p>Źródło odpowiedziało poprawnie.</p>'))+'</article>').join('');
+  setText('system-status',sources.length&&ok===sources.length?'● WSZYSTKIE ŹRÓDŁA OK':ok?'● DANE CZĘŚCIOWE':'● BRAK DANYCH');
+  setText('updated','Ostatnia analiza: '+new Date(data.generated_at).toLocaleString('pl-PL'));
+  setHTML('providers',sources.map(s=>'<article class="provider"><div class="odds-head"><b>'+esc(s.name)+'</b><span class="pill '+(s.available?'online':'')+'">'+(s.available?'OK':'BRAK DANYCH')+'</span></div>'+(s.error?'<p>'+esc(s.error)+'</p>':(s.message?'<p>'+esc(s.message)+'</p>':'<p>Źródło odpowiedziało poprawnie.</p>'))+'</article>').join('');
  }catch(e){
   document.getElementById('system-status').textContent='● BRAK SNAPSHOTU';
   document.getElementById('picks').innerHTML='<article class="provider"><b>Dane jeszcze nieopublikowane</b><p>'+esc(e.message)+' · uruchomienie workflow GitHub Actions utworzy pierwszy snapshot.</p></article>'
