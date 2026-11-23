@@ -157,7 +157,7 @@ def enrich_player_props(
     offers: list[dict[str, Any]],
     logs: list[dict[str, str]],
     injuries: list[dict[str, str]],
-) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     by_id: dict[str, list[dict[str, str]]] = defaultdict(list)
     by_name: dict[str, set[str]] = defaultdict(set)
     played: set[tuple[str, str]] = set()
@@ -189,7 +189,12 @@ def enrich_player_props(
     for offer in offers:
         name_key = normalize_name(offer.get("player"))
         raw_id = str(offer.get("player_id") or "").strip()
-        player_ids = {raw_id} if raw_id in by_id else by_name.get(name_key, set())
+        provider_id_matches_name = (
+            raw_id in by_id
+            and bool(by_id[raw_id])
+            and normalize_name(by_id[raw_id][0].get("player_name")) == name_key
+        )
+        player_ids = {raw_id} if provider_id_matches_name else by_name.get(name_key, set())
         if len(player_ids) != 1:
             copy = dict(offer)
             copy["form"] = None
