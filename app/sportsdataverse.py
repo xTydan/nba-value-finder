@@ -205,10 +205,32 @@ def _latest_injury_rows(injuries: list[dict[str, str]]) -> dict[tuple[str, str],
     return latest
 
 
+def team_abbreviations_for_offers(offers: list[dict[str, Any]], logs: list[dict[str, str]]) -> list[str]:
+    by_id: dict[str, list[dict[str, str]]] = defaultdict(list)
+    by_name: dict[str, set[str]] = defaultdict(set)
+    for row in logs:
+        pid = str(row.get("player_id") or "").strip()
+        if pid and (_number(row, "min") or 0) > 0:
+            by_id[pid].append(row)
+            by_name[normalize_name(row.get("player_name"))].add(pid)
+    teams: set[str] = set()
+    for offer in offers:
+        raw_id = str(offer.get("player_id") or "").strip()
+        name_key = normalize_name(offer.get("player"))
+        valid_id = raw_id in by_id and normalize_name(by_id[raw_id][0].get("player_name")) == name_key
+        ids = {raw_id} if valid_id else by_name.get(name_key, set())
+        if len(ids) != 1:
+            continue
+        rows = sorted(by_id[next(iter(ids))], key=lambda r: str(r.get("game_date") or ""), reverse=True)[:10]
+        teams.update(str(row.get("team_abbreviation") or "").strip().upper() for row in rows if row.get("team_abbreviation"))
+    return sorted(teams)
+
+
 def enrich_player_props(
     offers: list[dict[str, Any]],
     logs: list[dict[str, str]],
     injuries: list[dict[str, str]],
+    positions: dict[str, dict[str, Any]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     by_id: dict[str, list[dict[str, str]]] = defaultdict(list)
     by_name: dict[str, set[str]] = defaultdict(set)
@@ -278,9 +300,13 @@ def enrich_player_props(
                     for row, _ in last10
                 ],
                 "teammate_splits": _teammate_splits(
-                    player_id, player_rows[:30], metric, logs_by_game_team,
-                    reports_by_game_team, played,
+                    player_id, player_rows[:10], metric, logs_by_game_team,
+                    reports_by_game_team, played, positions or {},
                 ),
+                "position": (positions or {}).get(player_id, {}).get("position"),
+                "position_name": (positions or {}).get(player_id, {}).get("position_name"),
+                "position_source": (positions or {}).get(player_id, {}).get("position_source"),
+                "position_confidence": (positions or {}).get(player_id, {}).get("position_confidence", "unknown"),
             } if values_rows else None
 
         cached = metric_cache[cache_key]
@@ -294,6 +320,10 @@ def enrich_player_props(
         side = str(offer.get("side") or "")
         l10_values, l5_values = cached["l10_values"], cached["l5_values"]
         minutes = [x for x in cached["l10_minutes"] if x is not None]
+        copy["player_position"] = cached.get("position")
+        copy["player_position_name"] = cached.get("position_name")
+        copy["position_source"] = cached.get("position_source")
+        copy["position_confidence"] = cached.get("position_confidence", "unknown")
         copy["form"] = {
             "sample_size": len(l10_values),
             "l5": _hit_summary(l5_values, line, side) if line is not None and side in {"Over", "Under"} else None,
@@ -332,8 +362,11 @@ def _teammate_splits(
     logs_by_game_team: dict[tuple[str, str], list[dict[str, str]]],
     reports_by_game_team: dict[tuple[str, str], list[dict[str, str]]],
     played: set[tuple[str, str]],
+    positions: dict[str, dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     accum: dict[str, dict[str, Any]] = {}
+    positions = positions or {}
+    player_position = positions.get(player_id, {}).get("position")
     for player_row in player_rows:
         game_id = str(player_row.get("game_id") or "").strip()
         team_id = str(player_row.get("team_id") or "").strip()
@@ -349,6 +382,7 @@ def _teammate_splits(
                 continue
             entry = accum.setdefault(teammate_id, {
                 "name": str(teammate_row.get("player_name") or teammate_id),
+                "position": positions.get(teammate_id, {}).get("position"),
                 "active_values": [], "out_values": [],
                 "active_minutes": [], "out_minutes": [],
             })
@@ -365,6 +399,7 @@ def _teammate_splits(
                 continue
             entry = accum.setdefault(teammate_id, {
                 "name": _report_name(report.get("report_player_name")) or teammate_id,
+                "position": positions.get(teammate_id, {}).get("position"),
                 "active_values": [], "out_values": [],
                 "active_minutes": [], "out_minutes": [],
             })
@@ -384,6 +419,8 @@ def _teammate_splits(
         out_min = statistics.mean(entry["out_minutes"]) if entry["out_minutes"] else None
         result.append({
             "teammate_id": teammate_id, "teammate": entry["name"] or teammate_id,
+            "position": entry.get("position"),
+            "same_position": bool(player_position and entry.get("position") and player_position == entry.get("position")),
             "active_games": len(active), "out_games": len(out),
             "average_with_active": round(active_avg, 2),
             "average_with_out": round(out_avg, 2),
