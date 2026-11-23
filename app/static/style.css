@@ -185,3 +185,103 @@ footer{border-top-color:#d6e0eb;color:#75879c}
 .history-result.void{background:#e9edf2;color:#64748b}
 .history-result.pending{background:#e5edf7;color:#32658f}
 @media(max-width:700px){.history-day{padding:12px}.history-day-head b{font-size:16px}.history-stats{gap:5px}.history-stats span{padding:7px}.shell{padding:14px}header{padding-bottom:18px}h1{font-size:27px}}
+
+
+/* Dark navy + vivid electric blue theme */
+:root{
+ color-scheme:dark;
+ --bg:#080f1c;
+ --panel:#101c2d;
+ --panel-2:#14243a;
+ --line:#263d5b;
+ --accent:#2798ff;
+ --accent-strong:#48b2ff;
+ --text:#edf5ff;
+ --muted:#9aafc8;
+}
+html,body{background:#080f1c!important;color:#edf5ff!important}
+body{background:radial-gradient(ellipse at 50% -15%,#142d4b 0%,#0a1423 42%,#080f1c 78%)!important}
+header{border-color:#233b58!important}
+h1,h1 span{color:#f1f7ff!important}
+.eyebrow{color:#43adff!important}
+header p,small{color:#9aafc8}
+.status{background:#102d4b!important;border:1px solid #245d91!important;color:#70c2ff!important}
+nav{background:#080f1c!important;border-color:#203752!important;color:#9aafc8!important}
+nav a.active{color:#55b5ff!important;border-color:#2798ff!important}
+nav a:hover{color:#7bc7ff!important}
+.toolbar{color:#e8f3ff!important}
+.notice{background:#10243a!important;border-color:#24496f!important;border-left-color:#2798ff!important;color:#dcecff!important}
+.notice p{color:#a9bfd8!important}
+button{background:#1687e8!important;color:#fff!important;border:1px solid #299fff!important}
+button:hover{background:#2798ff!important}
+.provider,.grid .provider,.pick-card,.history-day,.empty-state{
+ background:linear-gradient(150deg,#14243a,#0e1929)!important;
+ color:#edf5ff!important;border:1px solid #294363!important;
+ box-shadow:0 8px 24px #0004!important
+}
+.provider p,.provider small,.quote small,.recent-title,.pick-foot{color:#9aafc8!important}
+.provider .pill{background:#15385a!important;color:#8acbff!important}
+.provider .pill.online{background:#123d35!important;color:#76e2b0!important}
+.pick-card{border-color:#29486b!important}
+.pick-card:hover,.match-select:hover{border-color:#2798ff!important;box-shadow:0 8px 26px #087bd329!important}
+.pick-market{color:#83caff!important}
+.pick-player{color:#f2f7ff!important}
+.pick-match{color:#a7bbd2!important}
+.coverage-badge{background:#3a2a18!important;border:1px solid #80501e!important;color:#ffc17b!important}
+.line-heading{background:#0b1727!important;border:1px solid #203b59!important}
+.line-heading strong,.quote b{color:#ffad62!important}
+.line-heading span,.line-heading span:first-child{color:#a9bfd8!important}
+.coverage{background:#17283c!important;border-color:#2b4665!important}
+.coverage small{color:#a9bfd8!important}
+.coverage.over{background:#12352e!important;border-color:#23775a!important}
+.coverage.over strong,.coverage.over span{color:#75e3ae!important}
+.coverage.under{background:#3a2028!important;border-color:#82414b!important}
+.coverage.under strong,.coverage.under span{color:#ffaaa9!important}
+.recent-game-cell,.quote,.split-box{background:#0b1727!important;border-color:#29415e!important}
+.recent-game-cell b,.split-line{color:#d4e5f8!important}
+.recent-game-cell small,.quote span{color:#a9bfd8!important}
+.recent-chip{background:#24364d!important;color:#dbeaff!important}
+.recent-chip.hit{background:#17613f!important;color:#b4f8d1!important}
+.recent-chip.miss{background:#6a3030!important;color:#ffd0ca!important}
+.recent-chip.push{background:#625020!important;color:#ffedab!important}
+.quote.preferred{background:#332718!important;border-color:#a66a35!important}
+.match-select{background:#12233a!important;color:#edf5ff!important;border-color:#2c4a6c!important}
+.match-select b{color:#f2f7ff!important}
+.match-select span,.match-select small{color:#a9bfd8!important}
+.match-select:hover{background:#172d49!important}
+.selected-match{border-color:#2798ff!important}
+.back-matches{background:#12365a!important;color:#83caff!important;border-color:#28669c!important}
+.match-injuries{background:#0e1b2c!important;border-color:#2b4562!important}
+.match-injuries h3{color:#75c6ff!important}
+.match-injury{border-color:#263d58!important}
+.match-injury b{color:#edf5ff!important}
+.match-injury small,.match-injuries>p{color:#a9bfd8!important}
+.position-tag{color:#75c6ff!important;border-color:#2e6393!important}
+.board-controls label{color:#b5c9df!important}
+.board-controls select,.board-controls input,.odds-controls input{
+ background:#0d1a2a!important;color:#edf5ff!important;border-color:#2b4562!important
+}
+.board-controls select:focus,.board-controls input:focus,.odds-controls input:focus{
+ outline:2px solid #2798ff!important;outline-offset:1px
+}
+.history-day{border-color:#294363!important}
+.history-day-head b{color:#f0f7ff!important}
+.history-day-score strong{color:#63bdff!important}
+.history-stats span{background:#1a2c42!important;color:#a9bfd8!important}
+.history-stats b{color:#d9ecff!important}
+.history-stats .positive b{color:#75e3ae!important}
+.history-stats .negative b{color:#ffaaa9!important}
+.history-table th{background:#17283d!important;color:#a9bfd8!important}
+.history-table td{border-color:#263b54!important;color:#c6d8ec!important}
+.history-table td:first-child{color:#f0f7ff!important}
+.history-result.win{background:#123e30!important;color:#8aebbd!important}
+.history-result.loss{background:#4a2529!important;color:#ffaaa9!important}
+.history-result.push{background:#4a3a1b!important;color:#ffdc85!important}
+.history-result.void{background:#29384b!important;color:#c2d1e2!important}
+.history-result.pending{background:#15385a!important;color:#8acbff!important}
+.empty-state{border-color:#2b4562!important}
+.empty-state p,.empty-state small{color:#a9bfd8!important}
+footer{border-color:#203752!important;color:#8fa7c2!important}
+a{color:#72c2ff}
+a:hover{color:#a1d8ff}
+::selection{background:#176bb0;color:#fff}
