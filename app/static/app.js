@@ -4,7 +4,7 @@ function setHTML(id,value){const el=byId(id);if(el)el.innerHTML=value}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 const marketLabels={player_points:'Punkty',player_rebounds:'Zbiórki',player_assists:'Asysty',player_threes:'Celne trójki',player_steals:'Przechwyty',player_blocks:'Bloki',player_turnovers:'Straty',player_points_rebounds:'Punkty + zbiórki',player_points_assists:'Punkty + asysty',player_rebounds_assists:'Zbiórki + asysty',player_points_rebounds_assists:'PRA',player_blocks_steals:'Bloki + przechwyty'};
 let allProps=[],analysisData={};
-function quoteHTML(q,label){if(!q)return '<div class="quote unavailable"><small>'+label+'</small><b>Brak kursu</b></div>';return '<div class="quote"><small>'+label+'</small><b>'+Number(q.odds).toFixed(2)+'</b><span>'+esc(q.bookmaker||'Bukmacher')+'</span></div>'}
+function quoteHTML(q,label){if(!q)return '<div class="quote unavailable"><small>'+label+'</small><b>Poza zakresem 1.60–2.20</b></div>';return '<div class="quote"><small>'+label+'</small><b>'+Number(q.odds).toFixed(2)+'</b><span>'+esc(q.bookmaker||'Bukmacher')+'</span></div>'}
 function recentHTML(values,line){return '<div class="recent-row">'+values.map(v=>'<span class="recent-chip '+(v>line?'hit':v<line?'miss':'push')+'" title="Linia '+esc(line)+'">'+esc(v)+'</span>').join('')+'</div>'}
 function cardHTML(x){
  const start=x.commence_time?new Date(x.commence_time).toLocaleString('pl-PL',{dateStyle:'short',timeStyle:'short'}):'Termin nieznany';
