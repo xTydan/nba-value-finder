@@ -293,6 +293,8 @@ def enrich_player_props(
             "l10": _hit_summary(l10_values, line, side) if line is not None and side in {"Over", "Under"} else None,
             "average_l10": round(statistics.mean(l10_values), 2) if l10_values else None,
             "median_l10": statistics.median(l10_values) if l10_values else None,
+            "recent_values": l10_values,
+            "recent_dates": cached["l10_dates"],
             "average_minutes_l10": round(statistics.mean(minutes), 1) if minutes else None,
             "last_game_date": cached["l10_dates"][0] if cached["l10_dates"] else None,
         }
