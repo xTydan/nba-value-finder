@@ -31,6 +31,16 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
+      - name: Set daily cache key
+        id: cache-date
+        run: echo "day=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+      - name: Cache current-season NBA datasets
+        uses: actions/cache@v4
+        with:
+          path: data_cache
+          key: nba-sportsdata-${{ steps.cache-date.outputs.day }}
+          restore-keys: |
+            nba-sportsdata-
       - name: Build current data snapshot
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
