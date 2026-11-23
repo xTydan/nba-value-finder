@@ -75,3 +75,11 @@ def test_only_pregame_injury_report_versions_are_used():
     kept = _keep_pregame_reports(injuries, schedules)
     assert len(kept) == 1
     assert kept[0]["current_status"] == "Questionable"
+
+
+def test_combined_prop_markets_are_derived_from_box_score_components():
+    from app.sportsdataverse import _stat_value
+    row = {"pts": "21", "reb": "7", "ast": "5"}
+    assert _stat_value(row, "player_points_rebounds") == 28
+    assert _stat_value(row, "player_points_assists") == 26
+    assert _stat_value(row, "player_rebounds_assists") == 12
