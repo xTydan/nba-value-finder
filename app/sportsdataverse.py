@@ -266,6 +266,13 @@ def enrich_player_props(
                 "l10_values": [val for _, val in last10],
                 "l5_values": [val for _, val in last5],
                 "l10_dates": [str(row.get("game_date") or "") for row, _ in last10],
+                "l10_games": [{
+                    "date": str(row.get("game_date") or ""),
+                    "game_id": str(row.get("game_id") or ""),
+                    "matchup": str(row.get("matchup") or row.get("match_up") or ""),
+                    "opponent": str(row.get("opponent_team_name") or row.get("opponent_abbreviation") or row.get("opponent_team_id") or ""),
+                    "home_away": str(row.get("home_away") or row.get("location") or ""),
+                } for row, _ in last10],
                 "l10_minutes": [
                     _number(row, "min") if _number(row, "min") is not None else _number(row, "minutes")
                     for row, _ in last10
@@ -295,6 +302,7 @@ def enrich_player_props(
             "median_l10": statistics.median(l10_values) if l10_values else None,
             "recent_values": l10_values,
             "recent_dates": cached["l10_dates"],
+            "recent_games": cached["l10_games"],
             "average_minutes_l10": round(statistics.mean(minutes), 1) if minutes else None,
             "last_game_date": cached["l10_dates"][0] if cached["l10_dates"] else None,
         }
