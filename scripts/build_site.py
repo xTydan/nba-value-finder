@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT))
 
 from app import espn, prop_line, sportsdataverse
 from app.props_board import build_props_board
+from app.pick_history import update_pick_history
 from app.espn import ESPNError
 from app.prop_line import PropLineError
 
@@ -85,6 +86,9 @@ def main():
             "starterów i graczy ważnej rotacji według ostatnich minut/występów."
         )
     props_board = build_props_board(odds_items)
+    history_status = update_pick_history(
+        props_board, historical_data[0] if historical_data else [], SITE / "data", now
+    )
     board_status = "Dane historyczne niedostępne — brak pełnego rankingu L10." if not stats_meta else f"Linie z historią co najmniej 5 meczów: {len(props_board)}."
 
     snapshot = {
@@ -99,6 +103,7 @@ def main():
         "injuries": impact_injuries,
         "games": games,
         "props_board": props_board,
+        "pick_history": history_status,
         "board_status": board_status,
         "policy": "No synthetic lines or picks. Missing source data stays unavailable.",
     }
