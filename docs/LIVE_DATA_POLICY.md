@@ -46,6 +46,16 @@ The scanner fetches current source data on demand. A permanent local archive is 
 - Stat Pick advertises an unauthenticated public API, but its developer page returned 404 when checked. Do not integrate until the API is independently reachable and documented.
 - Important bookmaker limitation: PropLine's own bookmaker catalog lists Superbet PL and STS as NBA game-lines sources, but does not list NBA player props for either. It lists player props for selected other operators (for example, Lottomatica, ePlay24, William Hill IT, Novig and ProphetX). Thus PropLine is a candidate for real NBA player-prop odds from other books, not a confirmed solution for Superbet/STS player props. Bookmaker coverage must be verified from actual returned rows, not inferred from a logo or marketing list.
 
+## First integration: PropLine (implemented; live coverage still requires smoke test)
+
+- `app/prop_line.py` calls the documented bulk NBA endpoint once per 15-minute cache window using `X-API-Key` from `ODDS_API_KEY`.
+- Supported initial markets: points, rebounds, assists, threes, steals, blocks, turnovers, PRA and blocks+steals.
+- American prices are converted to decimal odds. The raw American price, actual book title/key, line, side, event, start time and source update time are retained.
+- Only future, pregame fixtures and markets updated within `ODDS_MAX_AGE_SECONDS` (default 900) are accepted. DFS pick'em products and prediction exchanges are excluded from the sportsbook display.
+- `/api/odds` returns normalized offers. `/api/picks` intentionally remains empty until a calibrated probability model is implemented; a line feed alone does not establish betting value.
+- `.github/workflows/prop-line-smoke.yml` provides a manual authenticated smoke test. It reports counts and book/market names only, never the API key.
+- GitHub Actions injects the repository secret only into the workflow process.
+
 ## Integration rules
 
 - Never fabricate odds or use sample/demo odds as live data.
