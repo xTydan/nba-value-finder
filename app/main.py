@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import espn
+from app import espn, prop_line
 from app.espn import ESPNError
 from app.providers import UnconfiguredProvider
 from app.storage import init_db
@@ -66,10 +66,7 @@ def status():
             "Historical player availability",
             "Historical ACTIVE / OUT status by player and game",
         ).status().__dict__,
-        UnconfiguredProvider(
-            "Player props odds",
-            "Superbet / STS / Fortuna player props",
-        ).status().__dict__,
+        prop_line.status(),
     ]
     return {
         "app": "NBA Value Finder",
@@ -78,7 +75,7 @@ def status():
         "refresh_minutes": 15,
         "providers": providers,
         "verified_picks": 0,
-        "notice": "Statystyki terminarza ESPN są podłączone. Kursy i historyczna dostępność zawodników nie są jeszcze podłączone; brak fikcyjnych typów.",
+        "notice": "ESPN dostarcza terminarz i raport absencji. PropLine dostarcza rzeczywiste kursy player props, jeśli feed jest dostępny. Historyczne statusy ACTIVE/OUT i model value pozostają osobnymi zadaniami.",
     }
 
 
@@ -110,10 +107,18 @@ def player_gamelog(player_id: str, season: int | None = Query(default=None, ge=2
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
+@app.get("/api/odds")
+def odds():
+    try:
+        return prop_line.get_player_props()
+    except prop_line.PropLineError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
 @app.get("/api/picks")
 def picks():
     return {
         "items": [],
         "count": 0,
-        "message": "Brak zweryfikowanego źródła kursów. Nie generujemy typów bez rzeczywistych linii.",
+        "message": "Rzeczywiste linie są dostępne przez /api/odds. Nie generujemy value picków, dopóki nie zostanie uruchomiony i skalibrowany model prawdopodobieństwa.",
     }
