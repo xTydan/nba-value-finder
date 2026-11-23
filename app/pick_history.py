@@ -72,14 +72,16 @@ def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value) ->
         if not matching:
             continue
         row = matching[0]
+        # A box-score row with zero minutes is an official DNP/no-action,
+        # even if the feed also fills the counting stats with zeros.
+        minutes = _number(row.get("min"))
+        if minutes == 0:
+            pick["result"] = "VOID"
+            pick["settled_at"] = datetime.now(timezone.utc).isoformat()
+            changed = True
+            continue
         actual = stat_value(row, str(pick.get("market") or ""))
         if actual is None:
-            # A box-score row with zero minutes is an official DNP/no-action.
-            minutes = _number(row.get("min"))
-            if minutes == 0:
-                pick["result"] = "VOID"
-                pick["settled_at"] = datetime.now(timezone.utc).isoformat()
-                changed = True
             continue
         line = _number(pick.get("line"))
         if line is None:
