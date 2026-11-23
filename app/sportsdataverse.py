@@ -432,7 +432,7 @@ def _teammate_splits(
             "minutes_with_out": round(out_min, 1) if out_min is not None else None,
             "confidence": "small_sample" if min(len(active), len(out)) < 5 else "descriptive",
         })
-    result.sort(key=lambda x: (min(x["active_games"], x["out_games"]), abs(x["delta_average"])), reverse=True)
+    result.sort(key=lambda x: (bool(x.get("same_position")), min(x["active_games"], x["out_games"]), abs(x["delta_average"])), reverse=True)
     return result[:5]
 
 
