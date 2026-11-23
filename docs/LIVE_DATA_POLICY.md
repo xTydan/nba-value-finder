@@ -56,6 +56,23 @@ The scanner fetches current source data on demand. A permanent local archive is 
 - `.github/workflows/prop-line-smoke.yml` provides a manual authenticated smoke test. It reports counts and book/market names only, never the API key.
 - GitHub Actions injects the repository secret only into the workflow process.
 
+## Historical availability research (candidate identified, not yet integrated)
+
+A strong candidate for historical teammate-absence context is the public `nba_stats_injury_report` release maintained by SportsDataverse:
+
+- Release: https://github.com/sportsdataverse/sportsdataverse-data/releases/tag/nba_stats_injury_report
+- Schema documentation: https://py.sportsdataverse.org/docs/nba/reference/loaders/stats
+- Published Parquet assets are available by season. The documented schema includes `report_datetime`, `game_date`, `game_id`, `team_id`, `person_id`, `current_status`, `reason`, and `match_method`.
+- Coverage begins in 2018-19. The release is updated during the current season and contains repeated versions of official NBA pregame injury reports.
+- This is processed third-party data derived from the NBA's official injury-report PDFs, not an NBA-operated API. Keep the original source attribution and validate rows before using them in model features.
+- For each historical game, select only the latest report version published before that game's tip-off. Never use a report published after tip-off.
+- `Out` can be treated as a confirmed pregame absence designation. `Questionable` and `Doubtful` must remain separate uncertainty states; do not collapse them into `Out`.
+- A player absent from the report is not automatically `Available`. Use explicit report status plus box-score participation to distinguish ACTIVE, OUT and UNKNOWN.
+- Player matching must use `person_id` where present. Rows with missing IDs or weak `match_method` need a lower-confidence label or exclusion.
+- Before using this feed, test the current-season asset, row uniqueness, game/player joins and status timestamps. Historical teammate splits should disclose sample size and only compare games with known status.
+
+This source is promising for the user's key requirement: comparing a player's performance when a specific teammate was explicitly available versus explicitly ruled out. It is not yet wired into the production snapshot.
+
 ## Integration rules
 
 - Never fabricate odds or use sample/demo odds as live data.
