@@ -421,7 +421,7 @@ def _teammate_splits(
         # unrelated season-wide window.
         teammate_minutes = entry["active_minutes"]
         average_teammate_minutes = statistics.mean(teammate_minutes) if teammate_minutes else 0.0
-        if average_teammate_minutes < 15.0:
+        if average_teammate_minutes <= 15.0:
             continue
         if len(active) < 2 or len(out) < 2:
             continue
