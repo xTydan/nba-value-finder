@@ -52,10 +52,10 @@ def test_board_still_rejects_extreme_short_prices():
 def test_board_selects_only_one_best_line_for_same_player_market():
     form = {
         "sample_size": 10,
-        "recent_values": [20, 22, 21, 25, 19, 23, 24, 18, 22, 20],
+        "recent_values": [20, 22, 21, 25, 19, 23, 24, 18, 22, 16],
         "recent_dates": ["2026-11-20"] * 10,
         "recent_games": [],
-        "average_l10": 21.4,
+        "average_l10": 21.0,
         "average_minutes_l10": 34.0,
     }
     offers = [
