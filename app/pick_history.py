@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 from typing import Any
@@ -72,8 +72,6 @@ def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value) ->
         if not matching:
             continue
         row = matching[0]
-        # A box-score row with zero minutes is an official DNP/no-action,
-        # even if the feed also fills the counting stats with zeros.
         minutes = _number(row.get("min"))
         if minutes == 0:
             pick["result"] = "VOID"
@@ -104,13 +102,13 @@ def update_pick_history(
     now: datetime | None = None,
     games: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Settle archived picks and freeze top picks only at the first local tipoff."""
+    """Settle archived picks and freeze picks on the first build at/after local tipoff."""
     from app.sportsdataverse import _stat_value
 
     now = now or datetime.now(timezone.utc)
     now = now.astimezone(timezone.utc) if now.tzinfo else now.replace(tzinfo=timezone.utc)
-    # The archive day is the Warsaw calendar date of the first game, not the
-    # date of an early nightly build. This prevents saving picks hours early.
+
+    # Determine the earliest scheduled game for each Warsaw calendar day.
     first_tipoff_by_day: dict[str, datetime] = {}
     for game in games or []:
         tipoff = _parse_datetime(game.get("date") or game.get("commence_time"))
@@ -120,12 +118,17 @@ def update_pick_history(
         slate_day = tipoff.astimezone(WARSAW).date().isoformat()
         if slate_day not in first_tipoff_by_day or tipoff < first_tipoff_by_day[slate_day]:
             first_tipoff_by_day[slate_day] = tipoff
+
+    # Do not impose a short capture window: scheduled Actions can be delayed.
+    # The first successful build after tipoff captures the board once; later
+    # builds only settle those frozen picks and never replace them.
     eligible_days = [
         (day, tipoff) for day, tipoff in first_tipoff_by_day.items()
-        if timedelta(0) <= now - tipoff <= timedelta(minutes=90)
+        if now >= tipoff
     ]
     capture_day = min(eligible_days, key=lambda item: item[1])[0] if eligible_days else None
     today = capture_day or now.astimezone(WARSAW).date().isoformat()
+
     root_data = Path("data")
     root_data.mkdir(parents=True, exist_ok=True)
     history_path = root_data / "pick_history.json"
