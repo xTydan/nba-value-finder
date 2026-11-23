@@ -3,30 +3,31 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Any
 
-PREFERRED_ODDS_MIN = 1.60
+PREFERRED_ODDS_MIN = 1.70
 PREFERRED_ODDS_MAX = 2.20
 MIN_REASONABLE_ODDS = 1.40
 MAX_REASONABLE_ODDS = 3.00
 MIN_HISTORY = 5
 
 
-def _best_quote(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+def _valid_quotes(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     valid = []
     for row in rows:
         try:
             odds = float(row.get("decimal_odds"))
         except (TypeError, ValueError):
             continue
-        if not MIN_REASONABLE_ODDS <= odds <= MAX_REASONABLE_ODDS:
-            continue
-        valid.append(row)
+        if MIN_REASONABLE_ODDS <= odds <= MAX_REASONABLE_ODDS:
+            valid.append(row)
+    return sorted(valid, key=lambda row: abs(float(row["decimal_odds"]) - 1.90))
+
+
+def _best_quote(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    valid = _valid_quotes(rows)
     if not valid:
         return None
-    # Prefer the requested near-even price band, then the best available price.
-    return max(valid, key=lambda row: (
-        PREFERRED_ODDS_MIN <= float(row["decimal_odds"]) <= PREFERRED_ODDS_MAX,
-        float(row["decimal_odds"]),
-    ))
+    preferred = [row for row in valid if PREFERRED_ODDS_MIN <= float(row["decimal_odds"]) <= PREFERRED_ODDS_MAX]
+    return min(preferred or valid, key=lambda row: abs(float(row["decimal_odds"]) - 1.90))
 
 
 def build_props_board(offers: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -69,8 +70,10 @@ def build_props_board(offers: list[dict[str, Any]]) -> list[dict[str, Any]]:
         over_hits = sum(value > line for value in values)
         under_hits = sum(value < line for value in values)
         pushes = sum(value == line for value in values)
-        over_quote = _best_quote([row for row in rows if str(row.get("side", "")).lower() == "over"])
-        under_quote = _best_quote([row for row in rows if str(row.get("side", "")).lower() == "under"])
+        over_quotes = _valid_quotes([row for row in rows if str(row.get("side", "")).lower() == "over"])
+        under_quotes = _valid_quotes([row for row in rows if str(row.get("side", "")).lower() == "under"])
+        over_quote = _best_quote(over_quotes)
+        under_quote = _best_quote(under_quotes)
         if not over_quote and not under_quote:
             continue
         base = over_quote or under_quote or sample
@@ -84,10 +87,10 @@ def build_props_board(offers: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "recent_dates": dates, "recent_games": recent_games,
             "average_l10": form.get("average_l10"),
             "average_minutes_l10": form.get("average_minutes_l10"),
-            "over_quote": {"odds": over_quote.get("decimal_odds"), "bookmaker": over_quote.get("bookmaker"),
-                           "bookmaker_key": over_quote.get("bookmaker_key"), "age_seconds": over_quote.get("age_seconds")} if over_quote else None,
-            "under_quote": {"odds": under_quote.get("decimal_odds"), "bookmaker": under_quote.get("bookmaker"),
-                            "bookmaker_key": under_quote.get("bookmaker_key"), "age_seconds": under_quote.get("age_seconds")} if under_quote else None,
+            "over_quotes": [{"odds": q.get("decimal_odds"), "bookmaker": q.get("bookmaker"), "bookmaker_key": q.get("bookmaker_key"), "age_seconds": q.get("age_seconds")} for q in over_quotes],
+            "under_quotes": [{"odds": q.get("decimal_odds"), "bookmaker": q.get("bookmaker"), "bookmaker_key": q.get("bookmaker_key"), "age_seconds": q.get("age_seconds")} for q in under_quotes],
+            "over_quote": {"odds": over_quote.get("decimal_odds"), "bookmaker": over_quote.get("bookmaker"), "bookmaker_key": over_quote.get("bookmaker_key"), "age_seconds": over_quote.get("age_seconds")} if over_quote else None,
+            "under_quote": {"odds": under_quote.get("decimal_odds"), "bookmaker": under_quote.get("bookmaker"), "bookmaker_key": under_quote.get("bookmaker_key"), "age_seconds": under_quote.get("age_seconds")} if under_quote else None,
             "preferred_odds_range": [PREFERRED_ODDS_MIN, PREFERRED_ODDS_MAX],
             "analysis_key": base.get("analysis_key") or sample.get("analysis_key"),
             "best_side": ("over" if over_quote and (not under_quote or over_hits >= under_hits) else "under"),
