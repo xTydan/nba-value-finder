@@ -96,6 +96,19 @@ def main():
         shutil.rmtree(static_dst)
     shutil.copytree(static_src, static_dst)
     shutil.copy2(static_src / "index.html", SITE / "index.html")
+    if stats_meta:
+        print(
+            f"Historical stats season={stats_meta['season_end_year']} "
+            f"last_game_date={stats_meta['last_game_date']} "
+            f"game_log_rows={stats_meta['game_log_rows']} "
+            f"injury_report_rows={stats_meta['injury_report_rows']}"
+        )
+        print(
+            f"Player analysis: enriched={analysis_summary['offers_enriched']} "
+            f"unmatched={analysis_summary['offers_unmatched']} "
+            f"player_market_models={analysis_summary['unique_player_market_models']} "
+            f"teammate_split_sets={sum(bool(v['teammate_splits']) for v in player_analysis.values())}"
+        )
     print(
         "Built static snapshot:",
         f"odds={snapshot['odds_count']}",
