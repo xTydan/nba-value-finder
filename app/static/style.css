@@ -34,3 +34,17 @@
 .quote.unavailable b{font-size:12px;color:#7e8da2}
 @media(max-width:850px){.pick-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.board-controls{grid-template-columns:1fr}.recent-row{gap:3px}.recent-chip{font-size:10px;min-height:28px}.pick-card{padding:13px}}
+
+/* Match selector and dated recent-game results */
+.match-select{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;background:#151e2b;color:#eef2f7;border:1px solid #34445a;border-radius:11px;padding:17px;cursor:pointer;min-height:112px}
+.match-select:hover{border-color:#e0a43b;background:#1b2737}
+.match-select b{font-size:15px}.match-select span{font-size:12px;color:#c0cada}.match-select small{font-size:10px;color:#8796aa}
+.back-matches{margin:0 0 12px;background:#283447;color:#e9bd68;border:1px solid #40516a}
+.selected-match{border-color:#e0a43b}
+.recent-games-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:10px 0 14px}
+.recent-game-cell{min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 3px;background:#0e151f;border:1px solid #263346;border-radius:7px;text-align:center}
+.recent-game-cell .recent-chip{width:100%;min-height:30px}
+.recent-game-cell b{font-size:10px;color:#c6d0df}
+.recent-game-cell small{max-width:100%;font-size:9px;line-height:1.25;color:#8392a7;overflow-wrap:anywhere}
+.quote.preferred{border-color:#6a5731;background:#171b20}
+@media(max-width:600px){.recent-games-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.match-select{min-height:100px}}
