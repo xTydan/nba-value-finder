@@ -40,3 +40,20 @@ async function loadInjuries(){
 refreshStatus();
 loadGames();
 loadInjuries();
+
+
+async function loadOdds(){
+  const box=document.getElementById('odds');
+  if(!box)return;
+  try{
+    const response=await fetch('/api/odds');
+    if(!response.ok){const body=await response.json().catch(()=>({}));throw new Error(body.detail||'PropLine HTTP '+response.status)}
+    const data=await response.json();
+    if(!data.items.length){box.innerHTML='<article class="provider"><b>Brak aktualnych linii</b><p>PropLine nie zwrócił teraz aktualnych, przedmeczowych ofert dla obsługiwanych rynków NBA. Nie pokazujemy starych ani przykładowych kursów.</p></article>';return}
+    box.innerHTML=data.items.map(item=>{
+      const start=item.commence_time?new Date(item.commence_time).toLocaleString('pl-PL',{dateStyle:'short',timeStyle:'short'}):'Termin nieznany';
+      return '<article class="provider"><b>'+escapeHtml(item.player)+'</b><span class="pill">'+escapeHtml(item.side)+' '+escapeHtml(item.line)+'</span><p>'+escapeHtml(item.market.replaceAll('player_','').replaceAll('_',' '))+' · '+escapeHtml(item.home_team||'')+' – '+escapeHtml(item.away_team||'')+'</p><p><b>'+escapeHtml(item.decimal_odds.toFixed(2))+'</b> ('+escapeHtml(item.american_odds)+') · '+escapeHtml(item.bookmaker)+'</p><small>Mecz: '+escapeHtml(start)+' · aktualizacja kursu: '+escapeHtml(item.age_seconds)+' s temu</small></article>';
+    }).join('');
+  }catch(error){box.innerHTML='<article class="provider"><b>Kursy niedostępne</b><p>'+escapeHtml(error.message)+'</p></article>'}
+}
+loadOdds();
