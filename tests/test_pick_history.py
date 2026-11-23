@@ -37,7 +37,18 @@ def test_does_not_capture_before_first_tipoff(tmp_path, monkeypatch):
     assert saved["days"] == {}
 
 
-def test_capture_daily_picks_only_at_first_tipoff_and_settle(tmp_path, monkeypatch):
+def test_capture_retries_after_delayed_workflow_without_90_minute_cutoff(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    site_data = tmp_path / "site" / "data"
+    delayed_run = datetime(2026, 11, 24, 10, 0, tzinfo=timezone.utc)
+    result = update_pick_history(_board(), [], site_data, delayed_run, games=_games())
+    assert result["today_picks"] == 1
+    assert result["capture_day"] == "2026-11-24"
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    assert saved["days"]["2026-11-24"]["picks"][0]["result"] == "PENDING"
+
+
+def test_capture_daily_picks_only_once_and_settle(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     site_data = tmp_path / "site" / "data"
     first_run = datetime(2026, 11, 24, 0, 7, tzinfo=timezone.utc)
@@ -45,8 +56,14 @@ def test_capture_daily_picks_only_at_first_tipoff_and_settle(tmp_path, monkeypat
     assert result["today_picks"] == 1
     assert result["capture_day"] == "2026-11-24"
 
+    # A later board must not overwrite the frozen first snapshot.
+    changed_board = _board()
+    changed_board[0]["line"] = 99.5
+    later_run = datetime(2026, 11, 24, 10, 0, tzinfo=timezone.utc)
+    update_pick_history(changed_board, [], site_data, later_run, games=_games())
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
     pick = saved["days"]["2026-11-24"]["picks"][0]
+    assert pick["line"] == 13.5
     assert pick["player"] == "Keaton Wagler"
     assert pick["side"] == "OVER"
     assert pick["odds"] == 1.90
