@@ -89,7 +89,7 @@ def test_dnp_box_score_row_is_void_even_when_stats_are_zero(tmp_path, monkeypatc
     logs = [{
         "player_id": "123",
         "player_name": "Keaton Wagler",
-        "game_date": "2026-11-24",
+        "game_date": "2026-11-23",
         "pts": "0",
         "reb": "0",
         "ast": "0",
