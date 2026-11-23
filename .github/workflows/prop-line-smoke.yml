@@ -1,0 +1,59 @@
+name: PropLine API smoke test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -r requirements.txt
+      - name: Check PropLine key and NBA player props
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_MAX_AGE_SECONDS: "900"
+        run: |
+          python - <<'PY'
+          import os, sys, httpx
+          key = os.getenv("ODDS_API_KEY", "").strip()
+          if not key:
+              print("FAIL: repository secret ODDS_API_KEY is missing")
+              sys.exit(1)
+          url = "https://api.prop-line.com/v1/sports/basketball_nba/odds"
+          params = {
+              "markets": "player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks,player_turnovers,player_points_rebounds_assists,player_blocks_steals",
+              "max_age": "900",
+              "includePregameOnly": "true",
+          }
+          try:
+              response = httpx.get(url, params=params, headers={"X-API-Key": key}, timeout=20)
+              if response.status_code != 200:
+                  print(f"FAIL: PropLine HTTP {response.status_code}")
+                  sys.exit(1)
+              payload = response.json()
+              events = payload if isinstance(payload, list) else payload.get("events", payload.get("data", []))
+              if not isinstance(events, list):
+                  print("FAIL: unexpected response shape")
+                  sys.exit(1)
+              books = set()
+              markets = set()
+              props = 0
+              for event in events:
+                  for book in event.get("bookmakers", []):
+                      books.add(book.get("title") or book.get("key") or "unknown")
+                      for market in book.get("markets", []):
+                          markets.add(market.get("key"))
+                          props += len(market.get("outcomes", []))
+              print(f"OK: authenticated; events={len(events)}; bookmaker_blocks={len(books)}; outcomes={props}")
+              print("Bookmakers:", ", ".join(sorted(books)) if books else "none")
+              print("Markets:", ", ".join(sorted(m for m in markets if m)) if markets else "none")
+              if props == 0:
+                  print("WARNING: API key works, but this response currently has no NBA player-prop outcomes.")
+          except Exception as exc:
+              print(f"FAIL: request error ({type(exc).__name__})")
+              sys.exit(1)
+          PY
