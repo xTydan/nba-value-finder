@@ -147,6 +147,60 @@ def get_injuries() -> dict[str, Any]:
     return result
 
 
+
+def _roster_athletes(node: Any):
+    if isinstance(node, list):
+        for item in node:
+            yield from _roster_athletes(item)
+    elif isinstance(node, dict):
+        if node.get("id") and node.get("position"):
+            yield node
+        for key in ("athletes", "items", "entries", "positions", "groups"):
+            if key in node:
+                yield from _roster_athletes(node[key])
+
+
+def get_team_roster_positions(team_abbreviation: str) -> dict[str, dict[str, Any]]:
+    """Return current roster positions keyed by ESPN athlete ID."""
+    slug = str(team_abbreviation or "").strip().lower()
+    if not slug:
+        return {}
+    cache_key = ("roster", slug)
+    cached = _CACHE.get(cache_key)
+    if cached and time.monotonic() - cached[0] < 24 * 60 * 60:
+        return cached[1]
+    payload = _get_json(f"{BASE}/teams/{slug}/roster")
+    positions: dict[str, dict[str, Any]] = {}
+    for athlete in _roster_athletes(payload):
+        player_id = str(athlete.get("id") or "").strip()
+        if not player_id or player_id in positions:
+            continue
+        raw = athlete.get("position") or {}
+        if isinstance(raw, dict):
+            abbreviation = str(raw.get("abbreviation") or raw.get("shortName") or "").upper().strip()
+            name = str(raw.get("displayName") or raw.get("name") or "").strip()
+        else:
+            abbreviation, name = str(raw).upper().strip(), str(raw).strip()
+        if abbreviation not in {"PG", "SG", "SF", "PF", "C", "G", "F", "FC", "GF"}:
+            continue
+        positions[player_id] = {
+            "position": abbreviation, "position_name": name or abbreviation,
+            "position_source": "ESPN current team roster",
+            "position_confidence": "high" if abbreviation in {"PG", "SG", "SF", "PF", "C"} else "medium",
+        }
+    _CACHE[cache_key] = (time.monotonic(), positions)
+    return positions
+
+
+def get_positions_for_teams(team_abbreviations: list[str]) -> dict[str, dict[str, Any]]:
+    combined: dict[str, dict[str, Any]] = {}
+    for abbreviation in sorted({str(x).strip().upper() for x in team_abbreviations if x}):
+        try:
+            combined.update(get_team_roster_positions(abbreviation))
+        except ESPNError:
+            continue
+    return combined
+
 def get_player_gamelog(player_id: str, season: int | None = None) -> dict[str, Any]:
     params = {"season": str(season)} if season else None
     payload = _get_json(f"{COMMON}/athletes/{player_id}/gamelog", params)
