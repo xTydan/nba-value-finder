@@ -303,10 +303,10 @@ def enrich_player_props(
                     player_id, player_rows[:10], metric, logs_by_game_team,
                     reports_by_game_team, played, positions or {},
                 ),
-                "position": (positions or {}).get(player_id, {}).get("position"),
-                "position_name": (positions or {}).get(player_id, {}).get("position_name"),
-                "position_source": (positions or {}).get(player_id, {}).get("position_source"),
-                "position_confidence": (positions or {}).get(player_id, {}).get("position_confidence", "unknown"),
+                "position": ((positions or {}).get(player_id) or (positions or {}).get(normalize_name(player_rows[0].get("player_name")) or {})).get("position"),
+                "position_name": ((positions or {}).get(player_id) or (positions or {}).get(normalize_name(player_rows[0].get("player_name")) or {})).get("position_name"),
+                "position_source": ((positions or {}).get(player_id) or (positions or {}).get(normalize_name(player_rows[0].get("player_name")) or {})).get("position_source"),
+                "position_confidence": ((positions or {}).get(player_id) or (positions or {}).get(normalize_name(player_rows[0].get("player_name")) or {})).get("position_confidence", "unknown"),
             } if values_rows else None
 
         cached = metric_cache[cache_key]
@@ -382,7 +382,7 @@ def _teammate_splits(
                 continue
             entry = accum.setdefault(teammate_id, {
                 "name": str(teammate_row.get("player_name") or teammate_id),
-                "position": positions.get(teammate_id, {}).get("position"),
+                "position": (positions.get(teammate_id) or positions.get(normalize_name(teammate_row.get("player_name"))) or {}).get("position"),
                 "active_values": [], "out_values": [],
                 "active_minutes": [], "out_minutes": [],
             })
@@ -399,7 +399,7 @@ def _teammate_splits(
                 continue
             entry = accum.setdefault(teammate_id, {
                 "name": _report_name(report.get("report_player_name")) or teammate_id,
-                "position": positions.get(teammate_id, {}).get("position"),
+                "position": (positions.get(teammate_id) or positions.get(normalize_name(_report_name(report.get("report_player_name")))) or {}).get("position"),
                 "active_values": [], "out_values": [],
                 "active_minutes": [], "out_minutes": [],
             })
