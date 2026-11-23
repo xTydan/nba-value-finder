@@ -6,6 +6,7 @@ All joins are conservative: unknown status is never treated as active or out.
 from __future__ import annotations
 
 import csv
+import gzip
 import math
 import os
 import re
@@ -15,6 +16,7 @@ import unicodedata
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from typing import Any
 
 import httpx
@@ -77,31 +79,72 @@ def load_current_season() -> tuple[list[dict[str, str]], list[dict[str, str]], d
     season = current_season_end_year()
     logs_url = f"{RELEASE_BASE}/nba_stats_player_game_logs/player_game_logs_{season}.csv"
     injury_url = f"{RELEASE_BASE}/nba_stats_injury_report/injury_report_{season}.csv"
+    schedule_url = f"{RELEASE_BASE}/nba_stats_schedules/nba_schedule_{season}.csv.gz"
     logs_path = _download(logs_url, DATA_DIR / f"player_game_logs_{season}.csv")
     injury_path = _download(injury_url, DATA_DIR / f"injury_report_{season}.csv")
+    schedule_path = _download(schedule_url, DATA_DIR / f"nba_schedule_{season}.csv.gz")
     try:
         with logs_path.open("r", encoding="utf-8-sig", newline="") as handle:
             logs = list(csv.DictReader(handle))
         with injury_path.open("r", encoding="utf-8-sig", newline="") as handle:
-            injuries = list(csv.DictReader(handle))
+            raw_injuries = list(csv.DictReader(handle))
+        with gzip.open(schedule_path, "rt", encoding="utf-8-sig", newline="") as handle:
+            schedules = list(csv.DictReader(handle))
     except (OSError, csv.Error) as exc:
         raise SportsDataError(f"Could not parse current-season data: {type(exc).__name__}") from exc
-    if not logs or not injuries:
-        raise SportsDataError("Current-season game logs or injury report dataset is empty")
+    if not logs or not raw_injuries or not schedules:
+        raise SportsDataError("Current-season game logs, injury report or schedule dataset is empty")
     required_logs = {"player_id", "player_name", "game_id", "game_date"}
     required_injuries = {"report_datetime", "game_id", "team_id", "person_id", "current_status"}
-    if not required_logs.issubset(logs[0]) or not required_injuries.issubset(injuries[0]):
+    required_schedules = {"game_id", "game_date_time_utc"}
+    if (not required_logs.issubset(logs[0])
+            or not required_injuries.issubset(raw_injuries[0])
+            or not required_schedules.issubset(schedules[0])):
         raise SportsDataError("SportsDataverse CSV schema changed; refusing unsafe joins")
+    injuries = _keep_pregame_reports(raw_injuries, schedules)
     meta = {
         "provider": "SportsDataverse NBA stats datasets",
         "season_end_year": season,
         "game_log_rows": len(logs),
         "injury_report_rows": len(injuries),
+        "raw_injury_report_rows": len(raw_injuries),
+        "schedule_rows": len(schedules),
         "last_game_date": max((r.get("game_date", "") for r in logs), default=None),
-        "files": [logs_path.name, injury_path.name],
-        "data_note": "Current-season data release; its last_game_date is shown to expose update lag.",
+        "files": [logs_path.name, injury_path.name, schedule_path.name],
+        "data_note": "Only injury-report versions published before the scheduled tip-off are used.",
     }
     return logs, injuries, meta
+
+
+
+def _parse_report_time(value: Any) -> datetime | None:
+    try:
+        parsed = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=ZoneInfo("America/New_York"))
+    return parsed.astimezone(timezone.utc)
+
+
+def _keep_pregame_reports(
+    injuries: list[dict[str, str]], schedules: list[dict[str, str]]
+) -> list[dict[str, str]]:
+    tipoffs: dict[str, datetime] = {}
+    for row in schedules:
+        game_id = str(row.get("game_id") or "").strip()
+        tipoff = _parse_report_time(row.get("game_date_time_utc"))
+        if game_id and tipoff:
+            tipoffs[game_id] = tipoff
+
+    kept = []
+    for row in injuries:
+        game_id = str(row.get("game_id") or "").strip()
+        tipoff = tipoffs.get(game_id)
+        report_time = _parse_report_time(row.get("report_datetime"))
+        if tipoff and report_time and report_time < tipoff:
+            kept.append(row)
+    return kept
 
 
 def _number(row: dict[str, Any], key: str) -> float | None:
