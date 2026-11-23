@@ -2,48 +2,26 @@ function byId(id){return document.getElementById(id)}
 function setText(id,value){const el=byId(id);if(el)el.textContent=value}
 function setHTML(id,value){const el=byId(id);if(el)el.innerHTML=value}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function marketName(k){return String(k||'').replace(/^player_/,'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}
-function renderPicks(items,analysis,status){
+const marketLabels={player_points:'Punkty',player_rebounds:'Zbiórki',player_assists:'Asysty',player_threes:'Celne trójki',player_steals:'Przechwyty',player_blocks:'Bloki',player_turnovers:'Straty',player_points_rebounds:'Punkty + zbiórki',player_points_assists:'Punkty + asysty',player_rebounds_assists:'Zbiórki + asysty',player_points_rebounds_assists:'PRA',player_blocks_steals:'Bloki + przechwyty'};
+let allProps=[],analysisData={};
+function quoteHTML(q,label){if(!q)return '<div class="quote unavailable"><small>'+label+'</small><b>Brak kursu</b></div>';return '<div class="quote"><small>'+label+'</small><b>'+Number(q.odds).toFixed(2)+'</b><span>'+esc(q.bookmaker||'Bukmacher')+'</span></div>'}
+function recentHTML(values,line){return '<div class="recent-row">'+values.map(v=>'<span class="recent-chip '+(v>line?'hit':v<line?'miss':'push')+'" title="Linia '+esc(line)+'">'+esc(v)+'</span>').join('')+'</div>'}
+function cardHTML(x){
+ const start=x.commence_time?new Date(x.commence_time).toLocaleString('pl-PL',{dateStyle:'short',timeStyle:'short'}):'Termin nieznany';
+ const split=(analysisData[x.analysis_key]?.teammate_splits||[]).slice(0,2);
+ const splitHTML=split.length?split.map(s=>'<div class="split-line"><b>'+esc(s.teammate)+'</b>: z nim '+esc(s.active_games)+' mecz. · '+esc(s.average_with_active)+' | bez niego '+esc(s.out_games)+' mecz. · '+esc(s.average_with_out)+' | Δ '+esc(s.delta_average)+'</div>').join(''):'<div class="split-line muted">Brak wystarczającej próby potwierdzonych absencji teammate’ów</div>';
+ return '<article class="pick-card"><div class="pick-top"><span class="pick-market">'+esc(marketLabels[x.market]||x.market)+'</span><span class="coverage-badge">'+x.sample_size+' MECZÓW</span></div><div class="pick-player">'+esc(x.player)+'</div><div class="pick-match">'+esc(x.away_team||'')+' @ '+esc(x.home_team||'')+' · '+esc(start)+'</div><div class="line-heading"><span>LINIA</span><strong>'+esc(x.line)+'</strong><span>ŚREDNIA L10: '+esc(x.average_l10??'—')+'</span><span>MINUTY: '+esc(x.average_minutes_l10??'—')+'</span></div><div class="coverage-grid"><div class="coverage over"><small>OVER — POKRYCIE</small><strong>'+x.over_hits+'/'+x.sample_size+'</strong><span>'+Math.round(x.over_rate*100)+'%</span></div><div class="coverage under"><small>UNDER — POKRYCIE</small><strong>'+x.under_hits+'/'+x.sample_size+'</strong><span>'+Math.round(x.under_rate*100)+'%</span></div></div><div class="recent-title">OSTATNIE MECZE · wynik statystyki względem linii</div>'+recentHTML(x.recent_values||[],Number(x.line))+'<div class="quote-grid">'+quoteHTML(x.over_quote,'KURS OVER')+quoteHTML(x.under_quote,'KURS UNDER')+'</div><div class="split-box">'+splitHTML+'</div><small class="pick-foot">'+(x.pushes?'Push: '+x.pushes+' · ':'')+'Dane historyczne: ostatnie '+x.sample_size+' występów · pokrycie nie jest prognozą</small></article>';
+}
+function renderBoard(){
+ const market=byId('market-filter')?.value||'all',sort=byId('sort-filter')?.value||'coverage',name=(byId('player-filter')?.value||'').trim().toLowerCase();
+ let rows=allProps.filter(x=>(market==='all'||x.market===market)&&(!name||String(x.player).toLowerCase().includes(name)));
+ rows.sort((a,b)=>{if(sort==='average')return (b.average_l10??-Infinity)-(a.average_l10??-Infinity);if(sort==='minutes')return (b.average_minutes_l10??-Infinity)-(a.average_minutes_l10??-Infinity);if(sort==='odds')return Math.max(b.over_quote?.odds||0,b.under_quote?.odds||0)-Math.max(a.over_quote?.odds||0,a.under_quote?.odds||0);return Math.max(b.over_rate,b.under_rate)-Math.max(a.over_rate,a.under_rate)||b.sample_size-a.sample_size});
+ setText('pick-count',rows.length+' linii');
  const box=byId('picks');if(!box)return;
- const picks=Array.isArray(items)?items:[];
- setText('pick-count',picks.length+' value '+(picks.length===1?'pick':'picków'));
- if(!picks.length){box.innerHTML='<article class="empty-state"><div class="empty-icon">⌁</div><h2>Brak zakładów spełniających kryteria</h2><p>Nie publikujemy typów na siłę. Propozycje pojawią się dopiero wtedy, gdy kurs, rynek referencyjny i historia zawodnika spełnią wymagania.</p><small>'+esc(status||'Progi selekcji są aktywne.')+'</small></article>';return}
- box.innerHTML=picks.map(x=>{
-  const f=x.form||{},l=x.l10||f.l10||{};
-  const start=x.commence_time?new Date(x.commence_time).toLocaleString('pl-PL',{dateStyle:'short',timeStyle:'short'}):'Termin nieznany';
-  const splits=(analysis?.[x.analysis_key]?.teammate_splits||[]).slice(0,2);
-  const splitHtml=splits.length?splits.map(z=>'<div class="split-line"><b>'+esc(z.teammate)+'</b>: z nim '+esc(z.active_games)+' mecz. · '+esc(z.average_with_active)+' | bez niego '+esc(z.out_games)+' mecz. · '+esc(z.average_with_out)+' | Δ '+esc(z.delta_average)+'</div>').join(''):'<div class="split-line muted">Brak wystarczającej próby potwierdzonych absencji teammate’ów</div>';
-  return '<article class="pick-card"><div class="pick-top"><span class="pick-market">'+esc(marketName(x.market))+'</span><span class="pick-ev">EV +'+(Number(x.ev)*100).toFixed(1)+'%</span></div><div class="pick-player">'+esc(x.player)+'</div><div class="pick-match">'+esc(x.away_team||'')+' @ '+esc(x.home_team||'')+' · '+esc(start)+'</div><div class="pick-main"><div><small>REKOMENDOWANY ZAKŁAD</small><strong>'+esc(String(x.side||'').toUpperCase())+' '+esc(x.line)+'</strong></div><div class="pick-odds"><small>KURS</small><strong>'+Number(x.decimal_odds).toFixed(2)+'</strong><span>'+esc(x.bookmaker)+'</span></div></div><div class="pick-metrics"><div><small>FAIR PROBABILITY</small><b>'+(Number(x.fair_probability)*100).toFixed(1)+'%</b></div><div><small>EDGE</small><b>+'+(Number(x.edge)*100).toFixed(1)+' pp</b></div><div><small>L10</small><b>'+esc(l.hits??'—')+'/'+esc(l.decided??'—')+'</b></div><div><small>PRÓBA</small><b>'+esc(f.sample_size??'—')+'</b></div></div><div class="pick-detail"><span>Konsensus bez marży z '+esc(x.reference_books)+' innych bukmacherów</span><span>Średnia L10: '+esc(f.average_l10??'—')+' · minuty: '+esc(f.average_minutes_l10??'—')+'</span></div><div class="split-box">'+splitHtml+'</div><small class="pick-foot">Kurs odświeżony '+esc(x.age_seconds)+' s temu · niezależny konsensus no-vig</small></article>';
- }).join('');
+ box.innerHTML=rows.length?rows.map(cardHTML).join(''):'<article class="empty-state"><h2>Brak linii dla wybranych filtrów</h2><p>Nie znaleziono ofert z co najmniej pięcioma meczami historii dla tego wyboru. Spróbuj innej statystyki lub poczekaj na kolejną aktualizację.</p></article>';
 }
-function renderInjuries(items){
- const box=byId('injuries-list');if(!box)return;
- const rows=Array.isArray(items)?items:[];
- if(!rows.length){box.innerHTML='<article class="provider"><b>Brak wpisów w raporcie</b><p>Brak wpisu nie oznacza potwierdzonej pełnej dyspozycji.</p></article>';return}
- box.innerHTML=rows.map(x=>'<article class="provider"><div class="odds-head"><b>'+esc(x.player||'Nieznany zawodnik')+'</b><span class="pill">'+esc(x.status||'STATUS NIEZNANY')+'</span></div><p>'+esc(x.team||'Drużyna nieznana')+(x.details?' · '+esc(x.details):'')+'</p><small>Źródło: ESPN · '+esc(x.date||'data aktualizacji niepodana')+'</small></article>').join('');
-}
-function renderGames(items){
- const box=byId('games-list');if(!box)return;
- const rows=Array.isArray(items)?items:[];
- if(!rows.length){box.innerHTML='<article class="provider"><b>Brak meczów w pobranym terminarzu</b></article>';return}
- box.innerHTML=rows.map(g=>'<article class="provider"><b>'+esc((g.competitors||[]).map(t=>t.abbreviation||t.name||'TBD').join(' vs '))+'</b><p>'+esc(g.date?new Date(g.date).toLocaleString('pl-PL',{dateStyle:'short',timeStyle:'short'}):'Termin nieznany')+' · '+esc(g.status||'Status nieznany')+'</p></article>').join('');
-}
-async function loadSnapshot(){
- try{
-  const res=await fetch('./data/latest.json?ts='+Date.now(),{cache:'no-store'});
-  if(!res.ok)throw new Error('Nie udało się pobrać snapshotu ('+res.status+')');
-  const data=await res.json();
-  renderPicks(data.picks,data.player_analysis,data.picks_status);
-  renderInjuries(data.injuries);renderGames(data.games);
-  const sources=Array.isArray(data.sources)?data.sources:[],ok=sources.filter(s=>s.available).length;
-  setText('system-status',sources.length&&ok===sources.length?'● WSZYSTKIE ŹRÓDŁA OK':ok?'● DANE CZĘŚCIOWE':'● BRAK DANYCH');
-  setText('updated',data.generated_at?'Ostatnia analiza: '+new Date(data.generated_at).toLocaleString('pl-PL'):'Brak daty analizy');
-  setHTML('providers',sources.map(s=>'<article class="provider"><div class="odds-head"><b>'+esc(s.name)+'</b><span class="pill '+(s.available?'online':'')+'">'+(s.available?'OK':'BRAK DANYCH')+'</span></div>'+(s.error?'<p>'+esc(s.error)+'</p>':(s.message?'<p>'+esc(s.message)+'</p>':'<p>Źródło odpowiedziało poprawnie.</p>'))+'</article>').join(''));
- }catch(e){
-  setText('system-status','● BŁĄD ŁADOWANIA DANYCH');
-  setText('pick-count','—');
-  setHTML('picks','<article class="provider"><b>Nie udało się wczytać danych</b><p>'+esc(e.message)+' · sprawdź status publikacji w GitHub Actions.</p></article>');
-  setText('updated','Nie udało się pobrać aktualnego snapshotu');
- }
-}
+function renderInjuries(items){const box=byId('injuries-list');if(!box)return;const rows=Array.isArray(items)?items:[];box.innerHTML=rows.length?rows.map(x=>'<article class="provider"><div class="odds-head"><b>'+esc(x.player||'Nieznany zawodnik')+'</b><span class="pill">'+esc(x.status||'STATUS NIEZNANY')+'</span></div><p>'+esc(x.team||'Drużyna nieznana')+(x.details?' · '+esc(x.details):'')+'</p><small>Źródło: ESPN · '+esc(x.date||'data aktualizacji niepodana')+'</small></article>').join(''):'<article class="provider"><b>Brak wpisów w raporcie</b><p>Brak wpisu nie oznacza potwierdzonej pełnej dyspozycji.</p></article>'}
+function renderGames(items){const box=byId('games-list');if(!box)return;const rows=Array.isArray(items)?items:[];box.innerHTML=rows.length?rows.map(g=>'<article class="provider"><b>'+esc((g.competitors||[]).map(t=>t.abbreviation||t.name||'TBD').join(' vs '))+'</b><p>'+esc(g.date?new Date(g.date).toLocaleString('pl-PL',{dateStyle:'short',timeStyle:'short'}):'Termin nieznany')+' · '+esc(g.status||'Status nieznany')+'</p></article>').join(''):'<article class="provider"><b>Brak meczów w pobranym terminarzu</b></article>'}
+async function loadSnapshot(){try{const res=await fetch('./data/latest.json?ts='+Date.now(),{cache:'no-store'});if(!res.ok)throw new Error('Snapshot HTTP '+res.status);const data=await res.json();allProps=Array.isArray(data.props_board)?data.props_board:[];analysisData=data.player_analysis||{};renderBoard();renderInjuries(data.injuries);renderGames(data.games);const sources=Array.isArray(data.sources)?data.sources:[],ok=sources.filter(s=>s.available).length;setText('system-status',sources.length&&ok===sources.length?'● WSZYSTKIE ŹRÓDŁA OK':ok?'● DANE CZĘŚCIOWE':'● BRAK DANYCH');setText('updated',data.generated_at?'Ostatnia analiza: '+new Date(data.generated_at).toLocaleString('pl-PL'):'Brak daty analizy');setHTML('providers',sources.map(s=>'<article class="provider"><div class="odds-head"><b>'+esc(s.name)+'</b><span class="pill '+(s.available?'online':'')+'">'+(s.available?'OK':'BRAK DANYCH')+'</span></div>'+(s.error?'<p>'+esc(s.error)+'</p>':(s.message?'<p>'+esc(s.message)+'</p>':'<p>Źródło odpowiedziało poprawnie.</p>'))+'</article>').join(''))}catch(e){setText('system-status','● BŁĄD ŁADOWANIA DANYCH');setText('pick-count','—');setHTML('picks','<article class="provider"><b>Nie udało się wczytać danych</b><p>'+esc(e.message)+' · sprawdź GitHub Actions.</p></article>');setText('updated','Nie udało się pobrać aktualnego snapshotu')}}
+['market-filter','sort-filter','player-filter'].forEach(id=>byId(id)?.addEventListener('input',renderBoard));
 loadSnapshot();
