@@ -105,3 +105,6 @@ html{scroll-behavior:smooth;scroll-padding-top:18px}
 .match-injuries>p{margin:0;color:#aab8cb;line-height:1.5;font-size:12px}
 #picks{content-visibility:auto;contain-intrinsic-size:1000px}
 nav{position:sticky;top:0;z-index:10;background:#0d1119}
+
+.position-tag{display:inline-block;margin-left:7px;padding:2px 7px;border:1px solid var(--line,#394150);border-radius:999px;font-size:11px;font-weight:700;vertical-align:middle;color:var(--accent,#9fc5ff)}
+.position-tag.muted{opacity:.55}
