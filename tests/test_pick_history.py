@@ -26,6 +26,10 @@ def _games():
     return [{"id": "event-1", "date": "2026-11-24T00:00:00Z", "status_state": "pre"}]
 
 
+def _finalized():
+    return {("2026-11-23", "home", "away")}
+
+
 def test_does_not_capture_before_first_tipoff(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     site_data = tmp_path / "site" / "data"
@@ -79,7 +83,7 @@ def test_capture_daily_picks_only_once_and_settle(tmp_path, monkeypatch):
         "min": "30:00",
     }]
     second_run = datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc)
-    update_pick_history([], logs, site_data, second_run, games=[])
+    update_pick_history([], logs, site_data, second_run, games=[], finalized_games=_finalized())
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
     settled = saved["days"]["2026-11-24"]["picks"][0]
     assert settled["actual"] == 20.0
@@ -113,6 +117,6 @@ def test_dnp_box_score_row_is_void_even_when_stats_are_zero(tmp_path, monkeypatc
         "min": "0:00",
     }]
     update_pick_history([], logs, site_data,
-                        datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc), games=[])
+                        datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc), games=[], finalized_games=_finalized())
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
     assert saved["days"]["2026-11-24"]["picks"][0]["result"] == "VOID"
