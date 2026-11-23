@@ -283,6 +283,9 @@ def enrich_player_props(
             values_rows = [(row, _stat_value(row, metric)) for row in player_rows]
             values_rows = [(row, val) for row, val in values_rows if val is not None]
             last10, last5 = values_rows[:10], values_rows[:5]
+            position_data = ((positions or {}).get(player_id)
+                             or (positions or {}).get(normalize_name(player_rows[0].get("player_name")))
+                             or {})
             metric_cache[cache_key] = {
                 "player_id": player_id, "rows": player_rows,
                 "l10_values": [val for _, val in last10],
@@ -303,10 +306,10 @@ def enrich_player_props(
                     player_id, player_rows[:10], metric, logs_by_game_team,
                     reports_by_game_team, played, positions or {},
                 ),
-                "position": ((positions or {}).get(player_id) or (positions or {}).get(normalize_name(player_rows[0].get("player_name")) or {})).get("position"),
-                "position_name": ((positions or {}).get(player_id) or (positions or {}).get(normalize_name(player_rows[0].get("player_name")) or {})).get("position_name"),
-                "position_source": ((positions or {}).get(player_id) or (positions or {}).get(normalize_name(player_rows[0].get("player_name")) or {})).get("position_source"),
-                "position_confidence": ((positions or {}).get(player_id) or (positions or {}).get(normalize_name(player_rows[0].get("player_name")) or {})).get("position_confidence", "unknown"),
+                "position": position_data.get("position"),
+                "position_name": position_data.get("position_name"),
+                "position_source": position_data.get("position_source"),
+                "position_confidence": position_data.get("position_confidence", "unknown"),
             } if values_rows else None
 
         cached = metric_cache[cache_key]
