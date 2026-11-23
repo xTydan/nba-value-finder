@@ -415,6 +415,14 @@ def _teammate_splits(
     result = []
     for teammate_id, entry in accum.items():
         active, out = entry["active_values"], entry["out_values"]
+        # Ignore fringe players: their occasional appearances should not be
+        # treated as meaningful lineup/role changes. Use their actual minutes
+        # in the target player's last-ten-game sample, not minutes from an
+        # unrelated season-wide window.
+        teammate_minutes = entry["active_minutes"]
+        average_teammate_minutes = statistics.mean(teammate_minutes) if teammate_minutes else 0.0
+        if average_teammate_minutes < 15.0:
+            continue
         if len(active) < 2 or len(out) < 2:
             continue
         active_avg, out_avg = statistics.mean(active), statistics.mean(out)
@@ -424,6 +432,7 @@ def _teammate_splits(
             "teammate_id": teammate_id, "teammate": entry["name"] or teammate_id,
             "position": entry.get("position"),
             "same_position": bool(player_position and entry.get("position") and player_position == entry.get("position")),
+            "average_teammate_minutes": round(average_teammate_minutes, 1),
             "active_games": len(active), "out_games": len(out),
             "average_with_active": round(active_avg, 2),
             "average_with_out": round(out_avg, 2),
