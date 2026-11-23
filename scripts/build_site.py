@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app import espn, prop_line, sportsdataverse
+from app.value_model import find_value_picks
 from app.espn import ESPNError
 from app.prop_line import PropLineError
 
@@ -68,11 +69,17 @@ def main():
         if day:
             games.extend(day.get("events", []))
 
+    picks, value_summary = find_value_picks(odds_items)
+    picks_status = (
+        "No qualified value discrepancies at current thresholds."
+        if not picks else
+        "Market-relative value candidates found; this is not a calibrated player-outcome prediction model."
+    )
+
     snapshot = {
         "generated_at": now.isoformat(),
         "refresh_minutes": 30,
         "sources": [odds_status, injury_status, stats_status, *game_statuses],
-        "odds": odds_items,
         "player_analysis": player_analysis,
         "analysis_summary": analysis_summary,
         "stats_meta": stats_meta,
@@ -80,8 +87,9 @@ def main():
         "bookmakers": (odds or {}).get("bookmakers", []),
         "injuries": (injuries or {}).get("players", []),
         "games": games,
-        "picks": [],
-        "picks_status": "Model is not enabled: no calibrated probability estimates are published yet.",
+        "picks": picks,
+        "picks_status": picks_status,
+        "value_summary": value_summary,
         "policy": "No synthetic lines or picks. Missing source data stays unavailable.",
     }
     (SITE / "data").mkdir(exist_ok=True)
