@@ -69,6 +69,16 @@ def main():
         if day:
             games.extend(day.get("events", []))
 
+    raw_injuries = (injuries or {}).get("players", [])
+    impact_injuries = (
+        sportsdataverse.filter_impact_injuries(raw_injuries, logs)
+        if historical_data else []
+    )
+    if historical_data:
+        injury_status["message"] = (
+            f"ESPN: {len(raw_injuries)} zgłoszeń; pokazano {len(impact_injuries)} "
+            "starterów i graczy ważnej rotacji według ostatnich minut/występów."
+        )
     props_board = build_props_board(odds_items)
     board_status = "Dane historyczne niedostępne — brak pełnego rankingu L10." if not stats_meta else f"Linie z historią co najmniej 5 meczów: {len(props_board)}."
 
@@ -81,7 +91,7 @@ def main():
         "stats_meta": stats_meta,
         "odds_count": (odds or {}).get("count", 0),
         "bookmakers": (odds or {}).get("bookmakers", []),
-        "injuries": (injuries or {}).get("players", []),
+        "injuries": impact_injuries,
         "games": games,
         "props_board": props_board,
         "board_status": board_status,
