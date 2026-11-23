@@ -78,7 +78,7 @@ def build_props_board(offers: list[dict[str, Any]]) -> list[dict[str, Any]]:
             continue
         base = over_quote or under_quote or sample
         board.append({
-            "event_id": base.get("event_id"), "player": base.get("player"),
+            "event_id": base.get("event_id"), "player_id": base.get("player_id"), "player": base.get("player"),
             "player_position": base.get("player_position"), "player_position_name": base.get("player_position_name"),
             "position_confidence": base.get("position_confidence", "unknown"),
             "market": market, "line": line, "home_team": base.get("home_team"),
