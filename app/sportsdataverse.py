@@ -366,7 +366,7 @@ def _teammate_splits(
 ) -> list[dict[str, Any]]:
     accum: dict[str, dict[str, Any]] = {}
     positions = positions or {}
-    player_position = positions.get(player_id, {}).get("position")
+    player_position = (positions.get(player_id) or positions.get(normalize_name(player_rows[0].get("player_name"))) or {}).get("position")
     for player_row in player_rows:
         game_id = str(player_row.get("game_id") or "").strip()
         team_id = str(player_row.get("team_id") or "").strip()
