@@ -13,6 +13,7 @@ SPORT = "basketball_nba"
 MARKETS = [
     "player_points", "player_rebounds", "player_assists", "player_threes",
     "player_steals", "player_blocks", "player_turnovers",
+    "player_points_rebounds", "player_points_assists", "player_rebounds_assists",
     "player_points_rebounds_assists", "player_blocks_steals",
 ]
 CACHE_TTL_SECONDS = 15 * 60
