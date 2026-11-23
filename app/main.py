@@ -72,7 +72,7 @@ def status():
         "app": "NBA Value Finder",
         "version": app.version,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "refresh_minutes": 15,
+        "refresh_minutes": 30,
         "providers": providers,
         "verified_picks": 0,
         "notice": "ESPN dostarcza terminarz i raport absencji. PropLine dostarcza rzeczywiste kursy player props, jeśli feed jest dostępny. Historyczne statusy ACTIVE/OUT i model value pozostają osobnymi zadaniami.",
