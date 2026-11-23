@@ -5,6 +5,8 @@ from typing import Any
 
 PREFERRED_ODDS_MIN = 1.60
 PREFERRED_ODDS_MAX = 2.20
+MIN_REASONABLE_ODDS = 1.40
+MAX_REASONABLE_ODDS = 3.00
 MIN_HISTORY = 5
 
 
@@ -15,7 +17,7 @@ def _best_quote(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
             odds = float(row.get("decimal_odds"))
         except (TypeError, ValueError):
             continue
-        if odds <= 1.0:
+        if not MIN_REASONABLE_ODDS <= odds <= MAX_REASONABLE_ODDS:
             continue
         valid.append(row)
     if not valid:
