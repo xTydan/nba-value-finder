@@ -87,7 +87,7 @@ def main():
         )
     props_board = build_props_board(odds_items)
     history_status = update_pick_history(
-        props_board, historical_data[0] if historical_data else [], SITE / "data", now
+        props_board, historical_data[0] if historical_data else [], SITE / "data", now, games=games
     )
     board_status = "Dane historyczne niedostępne — brak pełnego rankingu L10." if not stats_meta else f"Linie z historią co najmniej 5 meczów: {len(props_board)}."
 
