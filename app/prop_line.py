@@ -20,7 +20,24 @@ DEFAULT_MAX_AGE_SECONDS = 900
 TIMEOUT = 20.0
 _CACHE: tuple[float, dict[str, Any]] | None = None
 # DFS pick'em products and exchanges are deliberately excluded from sportsbook odds.
-EXCLUDED_BOOKS = {"prizepicks", "underdog", "kalshi", "polymarket", "polymarket_us"}
+EXCLUDED_BOOKS = {
+    "prizepicks", "underdog", "kalshi", "polymarket", "polymarket_us",
+    "draftkings_pick6", "dabble", "parlayplay", "sleeper", "sportzino",
+    "fliff", "rebet", "prophetx", "novig", "courtside",
+}
+# Known traditional sportsbook operators returned by the authenticated smoke test.
+# Strict allowlisting prevents DFS pick'em and prediction-market prices from leaking
+# into a conventional sportsbook comparison.
+ALLOWED_BOOKS = {
+    "betmgm", "betrivers", "bovada", "draftkings", "elabet", "eurobet",
+    "fanduel", "fanatics", "hardrockbet", "lottomatica", "pinnacle",
+    "snai", "stoiximan", "tonybet", "unibet", "williamhillit",
+    "eplay24", "thescorebet",
+}
+
+
+def _book_slug(value: Any) -> str:
+    return "".join(ch for ch in str(value or "").lower() if ch.isalnum())
 
 
 class PropLineError(RuntimeError):
@@ -69,9 +86,11 @@ def _parse_events(payload: Any, now: datetime, max_age: int) -> list[dict[str, A
             if not isinstance(book, dict):
                 continue
             book_key = str(book.get("key") or "").lower()
+            book_title = book.get("title") or book_key
             if not book_key or book_key in EXCLUDED_BOOKS:
                 continue
-            book_title = book.get("title") or book_key
+            if _book_slug(book_key) not in ALLOWED_BOOKS and _book_slug(book_title) not in ALLOWED_BOOKS:
+                continue
             for market in book.get("markets") or []:
                 if not isinstance(market, dict) or market.get("key") not in MARKETS:
                     continue
