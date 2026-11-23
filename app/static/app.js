@@ -38,8 +38,10 @@ async function loadSnapshot(){
   if(!res.ok)throw new Error('Nie udało się pobrać snapshotu ('+res.status+')');
   const data=await res.json();
   renderOdds(data.odds||[]);renderInjuries(data.injuries||[]);renderGames(data.games||[]);
-  const ok=(data.sources||[]).filter(s=>s.available).length;
-  document.getElementById('system-status').textContent=ok?'● DANE ZAŁADOWANE':'● PROBLEM ZE ŹRÓDŁAMI';
+  const sources=data.sources||[];
+  const ok=sources.filter(s=>s.available).length;
+  const status=sources.length&&ok===sources.length?'● WSZYSTKIE ŹRÓDŁA OK':ok?'● DANE CZĘŚCIOWE':'● BRAK DANYCH';
+  document.getElementById('system-status').textContent=status;
   document.getElementById('updated').textContent='Ostatnia analiza: '+new Date(data.generated_at).toLocaleString('pl-PL');
   document.getElementById('pick-count').textContent=(data.picks||[]).length+' rekomendacji';
   document.getElementById('providers').innerHTML=(data.sources||[]).map(s=>'<article class="provider"><div class="odds-head"><b>'+esc(s.name)+'</b><span class="pill '+(s.available?'online':'')+'">'+(s.available?'OK':'BRAK DANYCH')+'</span></div>'+(s.error?'<p>'+esc(s.error)+'</p>':'<p>Źródło odpowiedziało poprawnie.</p>')+'</article>').join('');
