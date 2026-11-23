@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 from typing import Any
@@ -102,12 +102,30 @@ def update_pick_history(
     logs: list[dict[str, str]],
     site_data_dir: Path,
     now: datetime | None = None,
+    games: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Settle archived picks and freeze the first qualifying daily top-24 slate."""
+    """Settle archived picks and freeze top picks only at the first local tipoff."""
     from app.sportsdataverse import _stat_value
 
     now = now or datetime.now(timezone.utc)
-    today = now.astimezone(WARSAW).date().isoformat()
+    now = now.astimezone(timezone.utc) if now.tzinfo else now.replace(tzinfo=timezone.utc)
+    # The archive day is the Warsaw calendar date of the first game, not the
+    # date of an early nightly build. This prevents saving picks hours early.
+    first_tipoff_by_day: dict[str, datetime] = {}
+    for game in games or []:
+        tipoff = _parse_datetime(game.get("date") or game.get("commence_time"))
+        if not tipoff:
+            continue
+        tipoff = tipoff.astimezone(timezone.utc)
+        slate_day = tipoff.astimezone(WARSAW).date().isoformat()
+        if slate_day not in first_tipoff_by_day or tipoff < first_tipoff_by_day[slate_day]:
+            first_tipoff_by_day[slate_day] = tipoff
+    eligible_days = [
+        (day, tipoff) for day, tipoff in first_tipoff_by_day.items()
+        if timedelta(0) <= now - tipoff <= timedelta(minutes=90)
+    ]
+    capture_day = min(eligible_days, key=lambda item: item[1])[0] if eligible_days else None
+    today = capture_day or now.astimezone(WARSAW).date().isoformat()
     root_data = Path("data")
     root_data.mkdir(parents=True, exist_ok=True)
     history_path = root_data / "pick_history.json"
@@ -125,7 +143,7 @@ def update_pick_history(
         if _settle(day_data, logs, _stat_value):
             changed = True
 
-    if today not in history["days"] and board:
+    if capture_day and capture_day not in history["days"] and board:
         candidates = []
         for row in board:
             side, hits, quote = _pick_side(row)
@@ -165,7 +183,7 @@ def update_pick_history(
                 "actual": None,
             })
         if picks:
-            history["days"][today] = {
+            history["days"][capture_day] = {
                 "captured_at": now.isoformat(),
                 "picks": picks,
             }
@@ -184,6 +202,9 @@ def update_pick_history(
     return {
         "days": len(history["days"]),
         "today_picks": len(history["days"].get(today, {}).get("picks", [])),
+        "capture_day": capture_day,
+        "first_tipoff": first_tipoff_by_day.get(capture_day).isoformat() if capture_day else None,
+        "waiting_for_first_tipoff": capture_day is None and bool(first_tipoff_by_day),
         "changed": changed,
         "path": str(history_path),
     }
