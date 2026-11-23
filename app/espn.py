@@ -7,6 +7,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 import time
+import re
+import unicodedata
 
 import httpx
 
@@ -148,6 +150,12 @@ def get_injuries() -> dict[str, Any]:
 
 
 
+def _roster_name_key(value: Any) -> str:
+    text = unicodedata.normalize("NFKD", str(value or ""))
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    return re.sub(r"[^a-z0-9]", "", text.lower())
+
+
 def _roster_athletes(node: Any):
     if isinstance(node, list):
         for item in node:
@@ -183,11 +191,16 @@ def get_team_roster_positions(team_abbreviation: str) -> dict[str, dict[str, Any
             abbreviation, name = str(raw).upper().strip(), str(raw).strip()
         if abbreviation not in {"PG", "SG", "SF", "PF", "C", "G", "F", "FC", "GF"}:
             continue
-        positions[player_id] = {
+        record = {
+            "player_id": player_id,
             "position": abbreviation, "position_name": name or abbreviation,
             "position_source": "ESPN current team roster",
             "position_confidence": "high" if abbreviation in {"PG", "SG", "SF", "PF", "C"} else "medium",
         }
+        positions[player_id] = record
+        name_key = _roster_name_key(athlete.get("displayName") or athlete.get("fullName") or athlete.get("shortName"))
+        if name_key and name_key not in positions:
+            positions[name_key] = record
     _CACHE[cache_key] = (time.monotonic(), positions)
     return positions
 
