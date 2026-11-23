@@ -98,3 +98,42 @@ def test_injury_filter_keeps_starters_and_core_rotation_only():
     assert [row["player"] for row in result] == ["Starter One", "Sixth Player"]
     assert result[0]["rotation_role"] == "Starter"
     assert result[1]["rotation_role"] == "Ważna rotacja"
+
+
+def test_lineup_splits_are_limited_to_last_ten_and_mark_same_position():
+    logs, injuries = [], []
+    for i in range(12):
+        day = f"2026-11-{i + 1:02d}"
+        game = f"recent-{i}"
+        teammate_out = i < 2 or i >= 7
+        logs.append({
+            "player_id": "p1", "player_name": "Player One", "game_id": game,
+            "game_date": day, "team_id": "10", "team_abbreviation": "ABC",
+            "min": "34", "pts": str(20 if teammate_out else 10), "reb": "5", "ast": "4",
+        })
+        if teammate_out:
+            injuries.append({
+                "game_id": game, "person_id": "p2", "team_id": "10",
+                "report_datetime": day + " 12:00", "current_status": "Out",
+                "report_player_name": "Two, Player",
+            })
+        else:
+            logs.append({
+                "player_id": "p2", "player_name": "Player Two", "game_id": game,
+                "game_date": day, "team_id": "10", "team_abbreviation": "ABC",
+                "min": "28", "pts": "8", "reb": "3", "ast": "2",
+            })
+
+    offer = {"player": "Player One", "market": "player_points", "line": 15.5, "side": "Over"}
+    positions = {
+        "playerone": {"position": "PG", "position_confidence": "high"},
+        "playertwo": {"position": "PG", "position_confidence": "high"},
+    }
+    enriched, _, analysis = enrich_player_props([offer], logs, injuries, positions=positions)
+    assert enriched[0]["player_position"] == "PG"
+    split = analysis[enriched[0]["analysis_key"]]["teammate_splits"][0]
+    assert split["active_games"] == 5
+    assert split["out_games"] == 5
+    assert split["same_position"] is True
+    assert split["average_with_out"] == 20
+    assert split["average_with_active"] == 10
