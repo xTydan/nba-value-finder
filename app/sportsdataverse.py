@@ -32,6 +32,9 @@ MARKET_FIELDS = {
     "player_steals": ("stl",),
     "player_blocks": ("blk",),
     "player_turnovers": ("tov",),
+    "player_points_rebounds": ("pts", "reb"),
+    "player_points_assists": ("pts", "ast"),
+    "player_rebounds_assists": ("reb", "ast"),
     "player_points_rebounds_assists": ("pts", "reb", "ast"),
     "player_blocks_steals": ("blk", "stl"),
 }
