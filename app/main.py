@@ -43,11 +43,28 @@ def status():
             "message": str(exc),
         }
 
+    try:
+        injury_feed = espn.get_injuries()
+        injury_provider = {
+            "provider": "ESPN NBA injury report",
+            "available": True,
+            "checked_at": injury_feed["fetched_at"],
+            "message": f"Raport ESPN dostępny; wpisów: {injury_feed['count']}. Historia statusów zawodników wymaga osobnego źródła.",
+        }
+    except ESPNError as exc:
+        injury_provider = {
+            "provider": "ESPN NBA injury report",
+            "available": False,
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+            "message": str(exc),
+        }
+
     providers = [
         stats_provider,
+        injury_provider,
         UnconfiguredProvider(
-            "Injuries / historical availability",
-            "Official injury reports and historical player availability",
+            "Historical player availability",
+            "Historical ACTIVE / OUT status by player and game",
         ).status().__dict__,
         UnconfiguredProvider(
             "Player props odds",
