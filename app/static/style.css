@@ -285,3 +285,26 @@ footer{border-color:#203752!important;color:#8fa7c2!important}
 a{color:#72c2ff}
 a:hover{color:#a1d8ff}
 ::selection{background:#176bb0;color:#fff}
+
+
+/* Force the current dark theme across cached/legacy mobile layouts */
+html,body{min-height:100%;background:#080f1c!important;color:#edf5ff!important;color-scheme:dark!important}
+body{background:radial-gradient(ellipse at 50% -15%,#142d4b 0%,#0a1423 42%,#080f1c 78%)!important}
+.shell{width:100%;max-width:1440px;min-width:0;overflow-x:hidden}
+#board,.games-panel,.toolbar,.section-heading,.board-controls,#picks{color:#edf5ff!important}
+#picks{background:transparent!important}
+#picks>.pick-card,#picks>.empty-state,#picks>article{
+ background:linear-gradient(150deg,#14243a,#0e1929)!important;
+ color:#edf5ff!important;border:1px solid #294363!important;
+}
+#picks table{width:100%;background:#101c2d!important;color:#edf5ff!important;border-collapse:collapse}
+#picks th{background:#17283d!important;color:#a9bfd8!important}
+#picks td{background:#101c2d!important;color:#dcecff!important;border-color:#263b54!important}
+#picks tr{background:#101c2d!important}
+.pick-card,.pick-card *{min-width:0}
+.pick-player,.pick-match{overflow-wrap:anywhere}
+@media(max-width:600px){
+ .shell{padding:12px!important}
+ nav{max-width:100%;overflow-x:auto}
+ .pick-card{width:100%;max-width:100%;padding:12px!important}
+}
