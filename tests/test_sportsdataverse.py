@@ -49,11 +49,11 @@ def test_enrichment_computes_l10_and_explicit_teammate_absence_split():
             })
     offer = {"player": "Player One", "player_id": None, "market": "player_points",
              "line": 22.5, "side": "Over"}
-    enriched, summary = enrich_player_props([offer], logs, injuries)
+    enriched, summary, analysis = enrich_player_props([offer], logs, injuries)
     form = enriched[0]["form"]
     assert form["sample_size"] == 4
     assert form["l10"]["hits"] == 2
-    split = enriched[0]["teammate_splits"][0]
+    split = analysis[enriched[0]["analysis_key"]]["teammate_splits"][0]
     assert split["teammate"] == "Player Two"
     assert split["active_games"] == 2
     assert split["out_games"] == 2
