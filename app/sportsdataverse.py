@@ -184,6 +184,7 @@ def enrich_player_props(
 
     metric_cache: dict[tuple[str, str], dict[str, Any] | None] = {}
     enriched: list[dict[str, Any]] = []
+    analysis_by_key: dict[str, dict[str, Any]] = {}
     matched = 0
     for offer in offers:
         name_key = normalize_name(offer.get("player"))
@@ -192,7 +193,7 @@ def enrich_player_props(
         if len(player_ids) != 1:
             copy = dict(offer)
             copy["form"] = None
-            copy["teammate_splits"] = []
+            copy["analysis_key"] = None
             copy["analysis_status"] = "player_unmatched" if not player_ids else "player_ambiguous"
             enriched.append(copy)
             continue
@@ -213,13 +214,17 @@ def enrich_player_props(
                 "l10_dates": [str(row.get("game_date") or "") for row, _ in last10],
                 "l10_minutes": [(_number(row, "min") if _number(row, "min") is not None else _number(row, "minutes")) for row, _ in last10],
                 "all_values": [val for _, val in values_rows[:30]],
+                "teammate_splits": _teammate_splits(
+                    player_id, player_rows[:30], metric, logs_by_game_team,
+                    reports_by_game_team, played,
+                ),
             } if values_rows else None
 
         cached = metric_cache[cache_key]
         copy = dict(offer)
         if cached is None:
             copy["form"] = None
-            copy["teammate_splits"] = []
+            copy["analysis_key"] = None
             copy["analysis_status"] = "no_player_stats"
             enriched.append(copy)
             continue
@@ -238,10 +243,13 @@ def enrich_player_props(
             "average_minutes_l10": round(statistics.mean(minutes), 1) if minutes else None,
             "last_game_date": cached["l10_dates"][0] if cached["l10_dates"] else None,
         }
-        copy["teammate_splits"] = _teammate_splits(
-            player_id, cached["rows"][:30], offer["market"], logs_by_game_team,
-            reports_by_game_team, played,
-        )
+        analysis_key = f"{player_id}:{offer['market']}"
+        copy["analysis_key"] = analysis_key
+        analysis_by_key.setdefault(analysis_key, {
+            "player_id": player_id,
+            "market": offer["market"],
+            "teammate_splits": cached["teammate_splits"],
+        })
         copy["analysis_status"] = "matched"
         matched += 1
         enriched.append(copy)
@@ -252,7 +260,7 @@ def enrich_player_props(
         "unique_player_market_models": len(metric_cache),
         "historical_availability": "official_nba_injury_reports_processed_by_sportsdataverse",
     }
-    return enriched, summary
+    return enriched, summary, analysis_by_key
 
 
 def _teammate_splits(
