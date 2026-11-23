@@ -85,6 +85,7 @@ def main():
             f"ESPN: {len(raw_injuries)} zgłoszeń; pokazano {len(impact_injuries)} "
             "starterów i graczy ważnej rotacji według ostatnich minut/występów."
         )
+    print("Scoreboard date diagnostics:", json.dumps([{"id": g.get("id"), "name": g.get("name"), "date": g.get("date"), "commence_time": g.get("commence_time")} for g in games[:20]], ensure_ascii=False))
     props_board = build_props_board(odds_items)
     history_status = update_pick_history(
         props_board, historical_data[0] if historical_data else [], SITE / "data", now, games=games
