@@ -26,7 +26,7 @@ This is a working application foundation: FastAPI backend, responsive dashboard,
 ## Next integration work
 - Implement and validate a live NBA stats/game-log provider.
 - Implement injury report and historical player availability provider.
-- Implement a legal, reliable odds feed for Superbet, STS and Fortuna (or other free source).
+- Validate live PropLine player-prop coverage and then build the probability/value model; Superbet/STS player props are not confirmed in this feed.
 - Store timestamped snapshots, run scheduled refresh every 15 minutes, and settle predictions.
 - Deploy to a public host with persistent PostgreSQL.
 
