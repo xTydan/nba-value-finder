@@ -50,7 +50,7 @@ async function loadSnapshot(){
   document.getElementById('system-status').textContent=status;
   document.getElementById('updated').textContent='Ostatnia analiza: '+new Date(data.generated_at).toLocaleString('pl-PL');
   document.getElementById('pick-count').textContent=(data.picks||[]).length+' rekomendacji';
-  document.getElementById('providers').innerHTML=(data.sources||[]).map(s=>'<article class="provider"><div class="odds-head"><b>'+esc(s.name)+'</b><span class="pill '+(s.available?'online':'')+'">'+(s.available?'OK':'BRAK DANYCH')+'</span></div>'+(s.error?'<p>'+esc(s.error)+'</p>':'<p>Źródło odpowiedziało poprawnie.</p>')+'</article>').join('');
+  document.getElementById('providers').innerHTML=(data.sources||[]).map(s=>'<article class="provider"><div class="odds-head"><b>'+esc(s.name)+'</b><span class="pill '+(s.available?'online':'')+'">'+(s.available?'OK':'BRAK DANYCH')+'</span></div>'+(s.error?'<p>'+esc(s.error)+'</p>':(s.message?'<p>'+esc(s.message)+'</p>':'<p>Źródło odpowiedziało poprawnie.</p>'))+'</article>').join('');
   if(!data.picks?.length){document.getElementById('picks').innerHTML='<article class="provider"><b>Model w przygotowaniu</b><p>Feed kursów i dane źródłowe są prezentowane, ale rekomendacje value pozostają wyłączone do czasu walidacji modelu.</p></article>'}
  }catch(e){
   document.getElementById('system-status').textContent='● BRAK SNAPSHOTU';
