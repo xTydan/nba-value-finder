@@ -68,8 +68,20 @@ def main():
 
     games = []
     game_statuses = []
-    for offset in (0, 1):
-        date = (now + timedelta(days=offset)).strftime("%Y%m%d")
+    # Re-fetch scoreboards for archived PENDING picks: player logs alone are
+    # not proof that a game has officially reached Final.
+    pending_dates = set()
+    history_file = ROOT / "data" / "pick_history.json"
+    try:
+        archived = json.loads(history_file.read_text(encoding="utf-8"))
+        for day, day_data in (archived.get("days") or {}).items():
+            if any(p.get("result") == "PENDING" for p in day_data.get("picks", [])):
+                pending_dates.add(day)
+    except (OSError, ValueError, json.JSONDecodeError):
+        pass
+    scoreboard_dates = {(now + timedelta(days=offset)).strftime("%Y%m%d") for offset in (0, 1)}
+    scoreboard_dates.update(day.replace("-", "") for day in pending_dates)
+    for date in sorted(scoreboard_dates):
         day, status = safe_call(f"ESPN scoreboard {date}", lambda d=date: espn.get_scoreboard(d))
         game_statuses.append(status)
         if day:
@@ -86,9 +98,25 @@ def main():
             "starterów i graczy ważnej rotacji według ostatnich minut/występów."
         )
     print("Scoreboard date diagnostics:", json.dumps([{"id": g.get("id"), "name": g.get("name"), "date": g.get("date"), "commence_time": g.get("commence_time")} for g in games[:20]], ensure_ascii=False))
+    finalized_games = set()
+    import re
+    from zoneinfo import ZoneInfo
+    for game in games:
+        if str(game.get("status_state") or "").lower() != "post":
+            continue
+        competitors = game.get("competitors") or []
+        home = next((x.get("name") for x in competitors if x.get("home_away") == "home"), None)
+        away = next((x.get("name") for x in competitors if x.get("home_away") == "away"), None)
+        game_date = game.get("date")
+        if home and away and game_date:
+            parsed = datetime.fromisoformat(str(game_date).replace("Z", "+00:00"))
+            day_et = parsed.astimezone(ZoneInfo("America/New_York")).date().isoformat()
+            norm = lambda value: re.sub(r"[^a-z0-9]", "", str(value or "").casefold())
+            finalized_games.add((day_et, norm(home), norm(away)))
     props_board = build_props_board(odds_items)
     history_status = update_pick_history(
-        props_board, historical_data[0] if historical_data else [], SITE / "data", now, games=games
+        props_board, historical_data[0] if historical_data else [], SITE / "data", now,
+        games=games, finalized_games=finalized_games
     )
     board_status = "Dane historyczne niedostępne — brak pełnego rankingu L10." if not stats_meta else f"Linie z historią co najmniej 5 meczów: {len(props_board)}."
 
