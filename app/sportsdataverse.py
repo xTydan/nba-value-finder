@@ -1,12 +1,14 @@
 """Historical NBA game logs and official-report-derived teammate availability.
 
 The current-season files are published by SportsDataverse from NBA data sources.
-All joins are conservative: unknown status is never treated as active or out.
+Unknown availability is never treated as active or out. Injury reports are
+restricted to versions published before the calendar day of the game; the
+published schedules CSV contains dates but not tip-off timestamps, so same-day
+reports are conservatively excluded to prevent post-tip-off leakage.
 """
 from __future__ import annotations
 
 import csv
-import gzip
 import math
 import os
 import re
@@ -14,9 +16,8 @@ import statistics
 import time
 import unicodedata
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
-from zoneinfo import ZoneInfo
 from typing import Any
 
 import httpx
@@ -25,12 +26,9 @@ RELEASE_BASE = "https://github.com/sportsdataverse/sportsdataverse-data/releases
 TIMEOUT = 90.0
 DATA_DIR = Path(os.getenv("NBA_DATA_CACHE_DIR", "data_cache"))
 MARKET_FIELDS = {
-    "player_points": ("pts",),
-    "player_rebounds": ("reb",),
-    "player_assists": ("ast",),
-    "player_threes": ("fg3m",),
-    "player_steals": ("stl",),
-    "player_blocks": ("blk",),
+    "player_points": ("pts",), "player_rebounds": ("reb",),
+    "player_assists": ("ast",), "player_threes": ("fg3m",),
+    "player_steals": ("stl",), "player_blocks": ("blk",),
     "player_turnovers": ("tov",),
     "player_points_rebounds": ("pts", "reb"),
     "player_points_assists": ("pts", "ast"),
@@ -64,7 +62,7 @@ def _download(url: str, destination: Path, max_age_hours: int = 24) -> Path:
     temp = destination.with_suffix(destination.suffix + ".part")
     try:
         with httpx.stream("GET", url, follow_redirects=True, timeout=TIMEOUT,
-                          headers={"User-Agent": "NBA-Value-Finder/0.4"}) as response:
+                          headers={"User-Agent": "NBA-Value-Finder/0.5"}) as response:
             response.raise_for_status()
             with temp.open("wb") as handle:
                 for chunk in response.iter_bytes():
@@ -80,74 +78,84 @@ def _download(url: str, destination: Path, max_age_hours: int = 24) -> Path:
 
 def load_current_season() -> tuple[list[dict[str, str]], list[dict[str, str]], dict[str, Any]]:
     season = current_season_end_year()
-    logs_url = f"{RELEASE_BASE}/nba_stats_player_game_logs/player_game_logs_{season}.csv"
-    injury_url = f"{RELEASE_BASE}/nba_stats_injury_report/injury_report_{season}.csv"
-    schedule_url = f"{RELEASE_BASE}/nba_stats_schedules/nba_schedule_{season}.csv.gz"
-    logs_path = _download(logs_url, DATA_DIR / f"player_game_logs_{season}.csv")
-    injury_path = _download(injury_url, DATA_DIR / f"injury_report_{season}.csv")
-    schedule_path = _download(schedule_url, DATA_DIR / f"nba_schedule_{season}.csv.gz")
+    logs_path = _download(
+        f"{RELEASE_BASE}/nba_stats_player_game_logs/player_game_logs_{season}.csv",
+        DATA_DIR / f"player_game_logs_{season}.csv",
+    )
+    injury_path = _download(
+        f"{RELEASE_BASE}/nba_stats_injury_report/injury_report_{season}.csv",
+        DATA_DIR / f"injury_report_{season}.csv",
+    )
     try:
         with logs_path.open("r", encoding="utf-8-sig", newline="") as handle:
             logs = list(csv.DictReader(handle))
         with injury_path.open("r", encoding="utf-8-sig", newline="") as handle:
             raw_injuries = list(csv.DictReader(handle))
-        with gzip.open(schedule_path, "rt", encoding="utf-8-sig", newline="") as handle:
-            schedules = list(csv.DictReader(handle))
     except (OSError, csv.Error) as exc:
         raise SportsDataError(f"Could not parse current-season data: {type(exc).__name__}") from exc
-    if not logs or not raw_injuries or not schedules:
-        raise SportsDataError("Current-season game logs, injury report or schedule dataset is empty")
-    required_logs = {"player_id", "player_name", "game_id", "game_date"}
-    required_injuries = {"report_datetime", "game_id", "team_id", "person_id", "current_status"}
-    required_schedules = {"game_id", "game_date_time_utc"}
-    if (not required_logs.issubset(logs[0])
-            or not required_injuries.issubset(raw_injuries[0])
-            or not required_schedules.issubset(schedules[0])):
-        raise SportsDataError("SportsDataverse CSV schema changed; refusing unsafe joins")
-    injuries = _keep_pregame_reports(raw_injuries, schedules)
+    if not logs or not raw_injuries:
+        raise SportsDataError("Current-season game logs or injury report dataset is empty")
+    required_logs = {"player_id", "player_name", "game_id", "game_date", "team_id", "min"}
+    required_injuries = {
+        "report_datetime", "game_date", "game_id", "team_id",
+        "person_id", "current_status", "report_player_name",
+    }
+    missing_logs = sorted(required_logs - set(logs[0]))
+    missing_injuries = sorted(required_injuries - set(raw_injuries[0]))
+    if missing_logs or missing_injuries:
+        raise SportsDataError(
+            "SportsDataverse CSV schema changed; missing player-log columns="
+            f"{missing_logs}; missing injury-report columns={missing_injuries}"
+        )
+    injuries = _keep_pregame_reports(raw_injuries)
     meta = {
         "provider": "SportsDataverse NBA stats datasets",
         "season_end_year": season,
         "game_log_rows": len(logs),
         "injury_report_rows": len(injuries),
         "raw_injury_report_rows": len(raw_injuries),
-        "schedule_rows": len(schedules),
         "last_game_date": max((r.get("game_date", "") for r in logs), default=None),
-        "files": [logs_path.name, injury_path.name, schedule_path.name],
-        "data_note": "Only injury-report versions published before the scheduled tip-off are used.",
+        "files": [logs_path.name, injury_path.name],
+        "data_note": (
+            "Only injury-report versions published before the game date are used. "
+            "Same-day reports are excluded because the published schedules CSV "
+            "does not include tip-off timestamps."
+        ),
     }
     return logs, injuries, meta
 
 
+def _keep_pregame_reports(
+    injuries: list[dict[str, str]], schedules: list[dict[str, str]] | None = None
+) -> list[dict[str, str]]:
+    """Keep only reports published before the local calendar date of the game.
 
-def _parse_timestamp(value: Any, naive_timezone) -> datetime | None:
+    The public schedules release exposes game_date but not a reliable tip-off
+    timestamp. Excluding same-day reports is deliberately conservative.
+    """
+    kept = []
+    for row in injuries:
+        raw_game_date = str(row.get("game_date") or "").strip()
+        report_time = _parse_timestamp(row.get("report_datetime"))
+        try:
+            game_day = date.fromisoformat(raw_game_date[:10])
+        except ValueError:
+            continue
+        if report_time and report_time.date() < game_day:
+            kept.append(row)
+    return kept
+
+
+def _parse_timestamp(value: Any) -> datetime | None:
     try:
         parsed = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
     except (TypeError, ValueError):
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=naive_timezone)
-    return parsed.astimezone(timezone.utc)
-
-
-def _keep_pregame_reports(
-    injuries: list[dict[str, str]], schedules: list[dict[str, str]]
-) -> list[dict[str, str]]:
-    tipoffs: dict[str, datetime] = {}
-    for row in schedules:
-        game_id = str(row.get("game_id") or "").strip()
-        tipoff = _parse_timestamp(row.get("game_date_time_utc"), timezone.utc)
-        if game_id and tipoff:
-            tipoffs[game_id] = tipoff
-
-    kept = []
-    for row in injuries:
-        game_id = str(row.get("game_id") or "").strip()
-        tipoff = tipoffs.get(game_id)
-        report_time = _parse_timestamp(row.get("report_datetime"), ZoneInfo("America/New_York"))
-        if tipoff and report_time and report_time < tipoff:
-            kept.append(row)
-    return kept
+        # NBA injury-report timestamps are US/Eastern and naive.
+        from zoneinfo import ZoneInfo
+        parsed = parsed.replace(tzinfo=ZoneInfo("America/New_York"))
+    return parsed
 
 
 def _number(row: dict[str, Any], key: str) -> float | None:
@@ -176,9 +184,7 @@ def _hit_summary(values: list[float], line: float, side: str) -> dict[str, Any]:
     decisive = [value for value in values if value != line]
     hits = sum(value > line if side == "Over" else value < line for value in decisive)
     return {
-        "hits": hits,
-        "games": len(values),
-        "pushes": pushes,
+        "hits": hits, "games": len(values), "pushes": pushes,
         "decided": len(decisive),
         "rate": round(hits / len(decisive), 4) if decisive else None,
     }
@@ -236,8 +242,7 @@ def enrich_player_props(
         name_key = normalize_name(offer.get("player"))
         raw_id = str(offer.get("player_id") or "").strip()
         provider_id_matches_name = (
-            raw_id in by_id
-            and bool(by_id[raw_id])
+            raw_id in by_id and bool(by_id[raw_id])
             and normalize_name(by_id[raw_id][0].get("player_name")) == name_key
         )
         player_ids = {raw_id} if provider_id_matches_name else by_name.get(name_key, set())
@@ -255,16 +260,16 @@ def enrich_player_props(
             metric = str(offer.get("market"))
             values_rows = [(row, _stat_value(row, metric)) for row in player_rows]
             values_rows = [(row, val) for row, val in values_rows if val is not None]
-            last10 = values_rows[:10]
-            last5 = last10[:5]
+            last10, last5 = values_rows[:10], values_rows[:5]
             metric_cache[cache_key] = {
-                "player_id": player_id,
-                "rows": player_rows,
+                "player_id": player_id, "rows": player_rows,
                 "l10_values": [val for _, val in last10],
                 "l5_values": [val for _, val in last5],
                 "l10_dates": [str(row.get("game_date") or "") for row, _ in last10],
-                "l10_minutes": [(_number(row, "min") if _number(row, "min") is not None else _number(row, "minutes")) for row, _ in last10],
-                "all_values": [val for _, val in values_rows[:30]],
+                "l10_minutes": [
+                    _number(row, "min") if _number(row, "min") is not None else _number(row, "minutes")
+                    for row, _ in last10
+                ],
                 "teammate_splits": _teammate_splits(
                     player_id, player_rows[:30], metric, logs_by_game_team,
                     reports_by_game_team, played,
@@ -274,16 +279,13 @@ def enrich_player_props(
         cached = metric_cache[cache_key]
         copy = dict(offer)
         if cached is None:
-            copy["form"] = None
-            copy["analysis_key"] = None
+            copy["form"], copy["analysis_key"] = None, None
             copy["analysis_status"] = "no_player_stats"
             enriched.append(copy)
             continue
-
         line = _number(offer, "line")
         side = str(offer.get("side") or "")
-        l10_values = cached["l10_values"]
-        l5_values = cached["l5_values"]
+        l10_values, l5_values = cached["l10_values"], cached["l5_values"]
         minutes = [x for x in cached["l10_minutes"] if x is not None]
         copy["form"] = {
             "sample_size": len(l10_values),
@@ -297,8 +299,7 @@ def enrich_player_props(
         analysis_key = f"{player_id}:{offer['market']}"
         copy["analysis_key"] = analysis_key
         analysis_by_key.setdefault(analysis_key, {
-            "player_id": player_id,
-            "market": offer["market"],
+            "player_id": player_id, "market": offer["market"],
             "teammate_splits": cached["teammate_splits"],
         })
         copy["analysis_status"] = "matched"
@@ -332,8 +333,6 @@ def _teammate_splits(
             target_minutes = _number(player_row, "minutes")
         if target_value is None:
             continue
-        # Anyone who actually logged minutes is confirmed present, even if
-        # they were not listed on the injury report.
         for teammate_row in logs_by_game_team.get((game_id, team_id), []):
             teammate_id = str(teammate_row.get("player_id") or "").strip()
             if not teammate_id or teammate_id == player_id:
@@ -346,15 +345,13 @@ def _teammate_splits(
             entry["active_values"].append(target_value)
             if target_minutes is not None:
                 entry["active_minutes"].append(target_minutes)
-
-        # Absence is counted only when the latest pregame report explicitly
-        # says OUT and the player did not appear in the box score.
         for report in reports_by_game_team.get((game_id, team_id), []):
             teammate_id = str(report.get("person_id") or "").strip()
             if not teammate_id or teammate_id == player_id:
                 continue
-            status = str(report.get("current_status") or "").strip().lower()
-            if status != "out" or (game_id, teammate_id) in played:
+            if str(report.get("current_status") or "").strip().lower() != "out":
+                continue
+            if (game_id, teammate_id) in played:
                 continue
             entry = accum.setdefault(teammate_id, {
                 "name": _report_name(report.get("report_player_name")) or teammate_id,
@@ -369,19 +366,15 @@ def _teammate_splits(
 
     result = []
     for teammate_id, entry in accum.items():
-        active = entry["active_values"]
-        out = entry["out_values"]
+        active, out = entry["active_values"], entry["out_values"]
         if len(active) < 2 or len(out) < 2:
             continue
-        active_avg = statistics.mean(active)
-        out_avg = statistics.mean(out)
+        active_avg, out_avg = statistics.mean(active), statistics.mean(out)
         active_min = statistics.mean(entry["active_minutes"]) if entry["active_minutes"] else None
         out_min = statistics.mean(entry["out_minutes"]) if entry["out_minutes"] else None
         result.append({
-            "teammate_id": teammate_id,
-            "teammate": entry["name"] or teammate_id,
-            "active_games": len(active),
-            "out_games": len(out),
+            "teammate_id": teammate_id, "teammate": entry["name"] or teammate_id,
+            "active_games": len(active), "out_games": len(out),
             "average_with_active": round(active_avg, 2),
             "average_with_out": round(out_avg, 2),
             "delta_average": round(out_avg - active_avg, 2),
