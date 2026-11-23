@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Any
+import time
 
 import httpx
 
@@ -14,6 +15,17 @@ BASE = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba"
 COMMON = "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba"
 TIMEOUT = 12.0
 HEADERS = {"User-Agent": "NBA-Value-Finder/0.1 (read-only public data client)"}
+CACHE_TTL_SECONDS = 15 * 60
+_CACHE: dict[tuple[str, str], tuple[float, dict[str, Any]]] = {}
+
+
+def _cached(key: tuple[str, str], loader):
+    entry = _CACHE.get(key)
+    if entry and time.monotonic() - entry[0] < CACHE_TTL_SECONDS:
+        return entry[1]
+    value = loader()
+    _CACHE[key] = (time.monotonic(), value)
+    return value
 
 
 class ESPNError(RuntimeError):
@@ -49,6 +61,10 @@ def get_scoreboard(date: str | None = None) -> dict[str, Any]:
     requested_date = date or datetime.now(timezone.utc).strftime("%Y%m%d")
     if len(requested_date) != 8 or not requested_date.isdigit():
         raise ValueError("date must use YYYYMMDD format")
+    cache_key = ("scoreboard", requested_date)
+    cached = _CACHE.get(cache_key)
+    if cached and time.monotonic() - cached[0] < CACHE_TTL_SECONDS:
+        return cached[1]
     payload = _get_json(f"{BASE}/scoreboard", {"dates": requested_date})
     events = []
     for event in payload.get("events", []):
@@ -67,17 +83,23 @@ def get_scoreboard(date: str | None = None) -> dict[str, Any]:
             "competitors": [_team_summary(item) for item in competitors],
             "source": "ESPN",
         })
-    return {
+    result = {
         "date": requested_date,
         "count": len(events),
         "events": events,
         "source": "ESPN public NBA scoreboard",
         "fetched_at": datetime.now(timezone.utc).isoformat(),
     }
+    _CACHE[cache_key] = (time.monotonic(), result)
+    return result
 
 
 def get_injuries() -> dict[str, Any]:
     """Return the league injury report, preserving ESPN's reported status/details."""
+    cache_key = ("injuries", "league")
+    cached = _CACHE.get(cache_key)
+    if cached and time.monotonic() - cached[0] < CACHE_TTL_SECONDS:
+        return cached[1]
     payload = _get_json(f"{BASE}/injuries")
     groups = payload.get("teams") or payload.get("injuries") or []
     players: list[dict[str, Any]] = []
@@ -115,12 +137,14 @@ def get_injuries() -> dict[str, Any]:
         elif group.get("athlete") or group.get("player"):
             add_entry(group, team)
 
-    return {
+    result = {
         "count": len(players),
         "players": players,
         "source": "ESPN public NBA injury report",
         "fetched_at": datetime.now(timezone.utc).isoformat(),
     }
+    _CACHE[cache_key] = (time.monotonic(), result)
+    return result
 
 
 def get_player_gamelog(player_id: str, season: int | None = None) -> dict[str, Any]:
