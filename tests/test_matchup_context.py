@@ -4,7 +4,7 @@ from app.matchup_context import build_matchup_context
 def _team_row(game, day, team_id, abbreviation, points, fga, fta, oreb, tov, reb, ast):
     return {
         "game_id": game, "game_date": day, "team_id": team_id,
-        "team_abbreviation": abbreviation, "min": "30",
+        "team_abbreviation": abbreviation, "player_id": f"player-{team_id}", "min": "240",
         "pts": str(points), "fga": str(fga), "fta": str(fta),
         "oreb": str(oreb), "tov": str(tov), "reb": str(reb),
         "ast": str(ast), "fg3m": "10", "stl": "5", "blk": "4",
@@ -38,6 +38,13 @@ def test_matchup_context_aggregates_team_logs_and_excludes_same_day():
     assert context["away_defensive_rating"] is not None
     assert context["home_opponent_market_allowed"] == 100
     assert context["home_possessions_per_game"] is not None
+    assert context["home_points_allowed"] == 100
+    assert context["away_points_allowed"] == 110
+    assert context["league_points_allowed"] is not None
+    assert context["home_pace"] is not None
+    assert context["away_pace"] is not None
+    assert context["league_pace"] is not None
+    assert context["league_average_minutes"] is not None
     assert summary["offers_with_matchup_context"] == 1
 
 
