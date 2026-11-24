@@ -236,6 +236,8 @@ def update_pick_history(
             if capture_day is None:
                 capture_day = day
 
+    if capture_day:
+        today = capture_day
     if changed or not history_path.exists():
         history_path.write_text(
             json.dumps(history, ensure_ascii=False, indent=2) + "\n",
