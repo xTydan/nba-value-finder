@@ -141,15 +141,16 @@ def update_pick_history(
     history.setdefault("version", 1)
     history.setdefault("days", {})
 
-    # Freeze the earliest slate day that has not been archived yet. This
-    # intentionally captures before tipoff as soon as a qualifying board exists.
-    # If the board is empty or has no qualifying picks, a later build retries.
-    pending_days = [
-        (day, tipoff) for day, tipoff in first_tipoff_by_day.items()
-        if day not in history["days"]
-    ]
-    capture_day = min(pending_days, key=lambda item: item[1])[0] if pending_days else None
-    today = capture_day or now.astimezone(WARSAW).date().isoformat()
+    # Archive every upcoming Warsaw slate day represented in the current board.
+    # PropLine and ESPN use independent event IDs, so match by ET date and the
+    # normalized home/away team names instead of assuming their IDs are equal.
+    pending_days = sorted(
+        ((day, tipoff) for day, tipoff in first_tipoff_by_day.items()
+         if day not in history["days"]),
+        key=lambda item: item[1],
+    )
+    capture_day = None
+    today = now.astimezone(WARSAW).date().isoformat()
 
     changed = False
     finalized_games = finalized_games or set()
@@ -157,16 +158,31 @@ def update_pick_history(
         if _settle(day_data, logs, _stat_value, finalized_games):
             changed = True
 
-    if capture_day and capture_day not in history["days"] and board:
-        day_event_ids = {
-            str(game.get("id") or "") for game in (games or [])
-            if str(game.get("id") or "") and
-            _parse_datetime(game.get("date") or game.get("commence_time")) and
-            _parse_datetime(game.get("date") or game.get("commence_time")).astimezone(WARSAW).date().isoformat() == capture_day
-        }
+    game_keys_by_day: dict[str, set[tuple[str, str]]] = {}
+    for game in games or []:
+        parsed = _parse_datetime(game.get("date") or game.get("commence_time"))
+        if not parsed:
+            continue
+        competitors = game.get("competitors") or []
+        home = next((x.get("name") for x in competitors if x.get("home_away") == "home"), None)
+        away = next((x.get("name") for x in competitors if x.get("home_away") == "away"), None)
+        home = home or game.get("home_team")
+        away = away or game.get("away_team")
+        if home and away:
+            day = parsed.astimezone(WARSAW).date().isoformat()
+            game_keys_by_day.setdefault(day, set()).add((_team_key(home), _team_key(away)))
+
+    for day, _tipoff in pending_days:
         candidates = []
+        allowed_matchups = game_keys_by_day.get(day, set())
         for row in board:
-            if str(row.get("event_id") or "") not in day_event_ids:
+            row_time = _parse_datetime(row.get("commence_time"))
+            if not row_time or row_time.astimezone(WARSAW).date().isoformat() != day:
+                continue
+            matchup = (_team_key(row.get("home_team")), _team_key(row.get("away_team")))
+            if allowed_matchups and matchup not in allowed_matchups:
+                continue
+            if not matchup[0] or not matchup[1]:
                 continue
             side, hits, quote = _pick_side(row)
             sample = int(row.get("sample_size") or 0)
@@ -182,7 +198,12 @@ def update_pick_history(
             reverse=True,
         )
         picks = []
-        for row, side, hits, quote in candidates[:24]:
+        seen = set()
+        for row, side, hits, quote in candidates:
+            dedupe_key = (str(row.get("event_id") or ""), str(row.get("player_id") or row.get("player") or "").casefold(), str(row.get("market") or ""))
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
             picks.append({
                 "pick_id": "|".join(str(row.get(k) or "") for k in
                     ("event_id", "player_id", "market", "line")) + "|" + side,
@@ -204,12 +225,16 @@ def update_pick_history(
                 "result": "PENDING",
                 "actual": None,
             })
+            if len(picks) >= 24:
+                break
         if picks:
-            history["days"][capture_day] = {
+            history["days"][day] = {
                 "captured_at": now.isoformat(),
                 "picks": picks,
             }
             changed = True
+            if capture_day is None:
+                capture_day = day
 
     if changed or not history_path.exists():
         history_path.write_text(
