@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT))
 
 from app import espn, prop_line, sportsdataverse
 from app.props_board import build_props_board
+from app.matchup_context import build_matchup_context
 from app.pick_history import update_pick_history, _team_key
 from app.espn import ESPNError
 from app.prop_line import PropLineError
@@ -118,6 +119,13 @@ def main():
             day_et = parsed.astimezone(ZoneInfo("America/New_York")).date().isoformat()
             finalized_games.add((day_et, _team_key(home), _team_key(away)))
     props_board = build_props_board(odds_items)
+    matchup_summary = {"offers_with_matchup_context": 0, "team_game_rows": 0, "teams_with_history": 0, "note": "Historical team context unavailable."}
+    if historical_data:
+        try:
+            props_board, matchup_summary = build_matchup_context(props_board, historical_data[0])
+        except Exception as exc:
+            # Matchup context is optional and must never interrupt board/history builds.
+            matchup_summary = {"offers_with_matchup_context": 0, "error": type(exc).__name__}
     history_status = update_pick_history(
         props_board, historical_data[0] if historical_data else [], SITE / "data", now,
         games=games, finalized_games=finalized_games
@@ -130,6 +138,7 @@ def main():
         "sources": [odds_status, injury_status, stats_status, *game_statuses],
         "player_analysis": player_analysis,
         "analysis_summary": analysis_summary,
+        "matchup_summary": matchup_summary,
         "stats_meta": stats_meta,
         "odds_count": (odds or {}).get("count", 0),
         "bookmakers": (odds or {}).get("bookmakers", []),
