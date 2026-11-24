@@ -207,3 +207,48 @@ def test_archives_multiple_upcoming_slate_days_in_one_build(tmp_path, monkeypatc
 def test_team_key_normalizes_espn_la_clippers_alias():
     from app.pick_history import _team_key
     assert _team_key("LA Clippers") == _team_key("Los Angeles Clippers") == "clippers"
+
+
+def test_settlement_falls_back_to_normalized_player_name_when_id_differs(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    site_data = tmp_path / "site" / "data"
+    update_pick_history(_board(), [], site_data,
+                        datetime(2026, 11, 24, 0, 7, tzinfo=timezone.utc), games=_games())
+    logs = [{
+        "player_id": "different-provider-id",
+        "player_name": "Keaton  Wagler",
+        "game_date": "2026-11-23",
+        "team_abbreviation": "HOME",
+        "pts": "10",
+        "reb": "5",
+        "ast": "5",
+        "min": "30:00",
+    }]
+    update_pick_history([], logs, site_data,
+                        datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc),
+                        games=[], finalized_games=_finalized())
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    pick = saved["days"]["2026-11-24"]["picks"][0]
+    assert pick["actual"] == 20.0
+    assert pick["result"] == "WIN"
+
+
+def test_settlement_uses_minutes_fallback_for_dnp(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    site_data = tmp_path / "site" / "data"
+    update_pick_history(_board(), [], site_data,
+                        datetime(2026, 11, 24, 0, 7, tzinfo=timezone.utc), games=_games())
+    logs = [{
+        "player_id": "123",
+        "player_name": "Keaton Wagler",
+        "game_date": "2026-11-23",
+        "pts": "0",
+        "reb": "0",
+        "ast": "0",
+        "minutes": "0:00",
+    }]
+    update_pick_history([], logs, site_data,
+                        datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc),
+                        games=[], finalized_games=_finalized())
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    assert saved["days"]["2026-11-24"]["picks"][0]["result"] == "VOID"
