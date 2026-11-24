@@ -140,7 +140,7 @@ def update_pick_history(
     games: list[dict[str, Any]] | None = None,
     finalized_games: set[tuple[str, str, str]] | None = None,
 ) -> dict[str, Any]:
-    """Settle archived picks and refresh the daily top six until the first Warsaw-slate tipoff."""
+    """Settle archived picks and refresh the daily pick list until the first Warsaw-slate tipoff."""
     from app.sportsdataverse import _stat_value
 
     now = now or datetime.now(timezone.utc)
@@ -179,7 +179,7 @@ def update_pick_history(
     all_history.setdefault("version", 1)
     all_history.setdefault("days", {})
 
-    # Keep the daily top-six snapshot live until the slate's first scheduled tipoff.
+    # Keep the full daily pick list live until the slate's first scheduled tipoff.
     # Once that first game starts, the day's captured picks are immutable.
     # PropLine and ESPN use independent event IDs, so match by ET date and the
     # normalized home/away team names instead of assuming their IDs are equal.
@@ -276,7 +276,7 @@ def update_pick_history(
                 "result": "PENDING",
                 "actual": None,
             })
-            if len(picks) >= 6:
+            if len(picks) >= 24:
                 break
         if picks:
             history["days"][day] = {
