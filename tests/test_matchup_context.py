@@ -59,4 +59,4 @@ def test_missing_possession_components_do_not_fabricate_ratings():
     assert context["available"] is True
     assert context["home_offensive_rating"] is None
     assert context["home_defensive_rating"] is None
-    assert context["home_pace_proxy"] is None
+    assert context["home_possessions_per_game"] is None
