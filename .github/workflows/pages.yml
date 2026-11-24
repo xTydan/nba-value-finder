@@ -5,8 +5,8 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    # Build and publish a fresh data snapshot once per hour.
-    - cron: "7 * * * *"
+    # Retry four times per hour; avoid GitHub Actions top-of-hour congestion.
+    - cron: "2,17,32,47 * * * *"
 
 concurrency:
   group: nba-value-finder-pages
@@ -17,7 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    timeout-minutes: 25
     steps:
+      - name: Log scheduled refresh trigger
+        run: |
+          echo "Workflow event: $GITHUB_EVENT_NAME"
+          echo "UTC start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "Commit: $GITHUB_SHA"
       - name: Checkout
         uses: actions/checkout@v4
       - name: Configure Python
@@ -45,6 +51,8 @@ jobs:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           ODDS_MAX_AGE_SECONDS: "900"
         run: python scripts/build_site.py
+      - name: Validate freshly generated snapshot
+        run: python -c 'import json,pathlib; p=pathlib.Path("site/data/latest.json"); d=json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}; assert d.get("generated_at"), "Missing fresh snapshot; refusing to deploy"; print("Validated snapshot:",d["generated_at"],"props:",len(d.get("props_board",[])),"games:",len(d.get("games",[])))'
       - name: Persist daily pick history
         run: |
           if [ -f data/pick_history.json ]; then
