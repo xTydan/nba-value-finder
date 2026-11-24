@@ -129,16 +129,6 @@ def update_pick_history(
         if slate_day not in first_tipoff_by_day or tipoff < first_tipoff_by_day[slate_day]:
             first_tipoff_by_day[slate_day] = tipoff
 
-    # Freeze the earliest slate day that has not been archived yet. This
-    # intentionally captures before tipoff as soon as a qualifying board exists.
-    # If the board is empty or has no qualifying picks, a later build retries.
-    pending_days = [
-        (day, tipoff) for day, tipoff in first_tipoff_by_day.items()
-        if day not in history["days"]
-    ]
-    capture_day = min(pending_days, key=lambda item: item[1])[0] if pending_days else None
-    today = capture_day or now.astimezone(WARSAW).date().isoformat()
-
     root_data = Path("data")
     root_data.mkdir(parents=True, exist_ok=True)
     history_path = root_data / "pick_history.json"
@@ -150,6 +140,16 @@ def update_pick_history(
         history = {"version": 1, "days": {}}
     history.setdefault("version", 1)
     history.setdefault("days", {})
+
+    # Freeze the earliest slate day that has not been archived yet. This
+    # intentionally captures before tipoff as soon as a qualifying board exists.
+    # If the board is empty or has no qualifying picks, a later build retries.
+    pending_days = [
+        (day, tipoff) for day, tipoff in first_tipoff_by_day.items()
+        if day not in history["days"]
+    ]
+    capture_day = min(pending_days, key=lambda item: item[1])[0] if pending_days else None
+    today = capture_day or now.astimezone(WARSAW).date().isoformat()
 
     changed = False
     finalized_games = finalized_games or set()
