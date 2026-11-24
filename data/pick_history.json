@@ -739,6 +739,31 @@
           "actual": null
         }
       ]
+    },
+    "2026-11-26": {
+      "captured_at": "2026-11-24T10:32:05.616375+00:00",
+      "picks": [
+        {
+          "pick_id": "735015|1626157|player_points_rebounds_assists|37.5|over",
+          "player": "Karl-Anthony Towns",
+          "player_id": "1626157",
+          "team": null,
+          "home_team": "New York Knicks",
+          "away_team": "Cleveland Cavaliers",
+          "event_id": "735015",
+          "game_date_et": "2026-11-25",
+          "market": "player_points_rebounds_assists",
+          "line": 37.5,
+          "side": "OVER",
+          "odds": 1.8772,
+          "bookmaker": "FanDuel",
+          "l10_hits": 8,
+          "l10_sample": 10,
+          "captured_at": "2026-11-24T10:32:05.616375+00:00",
+          "result": "PENDING",
+          "actual": null
+        }
+      ]
     }
   }
 }
