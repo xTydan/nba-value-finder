@@ -45,7 +45,7 @@ function renderBoard(){
   return bh-ah||Math.min(...ao.map(v=>Math.abs(v-1.90)))-Math.min(...bo.map(v=>Math.abs(v-1.90)))||b.sample_size-a.sample_size;
  });
  rows=rows.slice(0,24);
- const topRows=rows.slice(0,6);
+ const topRows=rows;
  setText('pick-count',rows.length+(selectedEvent?(showAllMatchProps?' linii meczu':' najlepszych linii meczu'):' najlepszych linii'));
  setText('top-pick-count',topRows.length+' najlepszych');
  const toggle=byId('match-all-toggle');if(toggle){toggle.hidden=!selectedEvent;toggle.textContent=showAllMatchProps?'Pokaż tylko najlepsze propsy':'Pokaż wszystkie linie (maks. 24)'}
