@@ -322,3 +322,17 @@ body{background:radial-gradient(ellipse at 50% -15%,#142d4b 0%,#0a1423 42%,#080f
 .history-collapse-head>#history-summary,.history-collapse-head>#all-history-summary{white-space:normal;text-align:right;font-size:10px}
 .history-collapse[open]>.history-days{margin-top:2px}
 @media(max-width:600px){.history-collapse{padding:0 10px 10px}.history-collapse-head{align-items:flex-start;gap:8px}.history-collapse-head b{font-size:13px}.history-collapse-head>#history-summary,.history-collapse-head>#all-history-summary{max-width:42%;font-size:9px}}
+
+
+/* Optional pre-game matchup context; visually separate from L10 coverage */
+.matchup-context{margin:12px 0;padding:12px;border:1px solid #294d70;border-radius:10px;background:#0b1929;color:#dcecff;display:grid;gap:8px}
+.matchup-context.unavailable{background:#101c2b;border-color:#34465a}
+.matchup-title{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.matchup-title b,.matchup-context> b{font-size:10px;letter-spacing:.55px;color:#77c7ff}
+.matchup-title small,.matchup-note,.matchup-allowed small{font-size:10px;color:#91a9c3}
+.matchup-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-top:7px;border-top:1px solid #233a53;font-size:11px}
+.matchup-row>b{min-width:42px;color:#f1f7ff}
+.matchup-row span{color:#b8cce1}
+.matchup-allowed{display:grid;gap:5px;padding-top:7px;border-top:1px solid #233a53;font-size:10px;color:#a9bfd8}
+.matchup-allowed b{color:#ffbf7b}
+@media(max-width:600px){.matchup-context{padding:9px}.matchup-row{gap:7px}.matchup-row>b{width:100%}.matchup-row span{font-size:10px}}
