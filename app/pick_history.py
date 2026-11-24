@@ -367,7 +367,7 @@ def update_pick_history(
     )
     if all_changed or not all_history_path.exists():
         all_history_path.write_text(
-            json.dumps(all_history, ensure_ascii=False, indent=2) + "\\n",
+            json.dumps(all_history, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
     (site_data_dir / "all_pick_history.json").write_text(
