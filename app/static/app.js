@@ -97,20 +97,19 @@ async function loadAllPickHistory(){try{const res=await fetch('./data/all_pick_h
 ['market-filter','sort-filter','player-filter','odds-range'].forEach(id=>byId(id)?.addEventListener('input',renderBoard));
 byId('match-all-toggle')?.addEventListener('click',()=>{showAllMatchProps=!showAllMatchProps;renderBoard()});
 loadSnapshot();loadPickHistory();loadAllPickHistory();
-// Odświeżaj dane najwyżej raz na godzinę. Po powrocie do karty nadrabiaj
+// Odświeżaj dane co 15 minut. Po powrocie do karty nadrabiaj
 // odświeżenie, jeśli przeglądarka zawiesiła timery w tle (częste na telefonach).
-const AUTO_REFRESH_MS=60*60*1000;
+const AUTO_REFRESH_MS=15*60*1000;
 let refreshInProgress=false;
 let lastAutoRefreshAt=Date.now();
 async function refreshAllDataIfDue(force=false){
  if(refreshInProgress||document.visibilityState==='hidden')return;
  if(!force&&Date.now()-lastAutoRefreshAt<AUTO_REFRESH_MS)return;
  refreshInProgress=true;
- lastAutoRefreshAt=Date.now();
  try{await Promise.all([loadSnapshot(),loadPickHistory(),loadAllPickHistory()]);}
- finally{refreshInProgress=false;}
+ finally{lastAutoRefreshAt=Date.now();refreshInProgress=false;}
 }
-setInterval(()=>refreshAllDataIfDue(),60*1000);
+setInterval(()=>refreshAllDataIfDue(),30*1000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshAllDataIfDue();});
 window.addEventListener('focus',()=>refreshAllDataIfDue());
 window.addEventListener('pageshow',()=>refreshAllDataIfDue());
