@@ -77,6 +77,31 @@ def test_capture_retries_after_delayed_workflow_without_90_minute_cutoff(tmp_pat
     assert saved["days"]["2026-11-24"]["picks"][0]["result"] == "PENDING"
 
 
+
+def test_daily_top_six_refreshes_before_first_tipoff_then_freezes(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    site_data = tmp_path / "site" / "data"
+    first_run = datetime(2026, 11, 23, 23, 30, tzinfo=timezone.utc)
+    update_pick_history(_board(), [], site_data, first_run, games=_games())
+
+    changed_board = _board()
+    changed_board[0]["over_quotes"] = [{"odds": 2.05, "bookmaker": "New Book"}]
+    before_tipoff = datetime(2026, 11, 23, 23, 50, tzinfo=timezone.utc)
+    update_pick_history(changed_board, [], site_data, before_tipoff, games=_games())
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    pick = saved["days"]["2026-11-24"]["picks"][0]
+    assert pick["odds"] == 2.05
+    assert pick["bookmaker"] == "New Book"
+
+    changed_board[0]["over_quotes"] = [{"odds": 1.55, "bookmaker": "After Tipoff"}]
+    after_tipoff = datetime(2026, 11, 24, 0, 10, tzinfo=timezone.utc)
+    update_pick_history(changed_board, [], site_data, after_tipoff, games=_games())
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    pick = saved["days"]["2026-11-24"]["picks"][0]
+    assert pick["odds"] == 2.05
+    assert pick["bookmaker"] == "New Book"
+
+
 def test_capture_daily_picks_only_once_and_settle(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     site_data = tmp_path / "site" / "data"
