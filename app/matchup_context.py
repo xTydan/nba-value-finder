@@ -215,7 +215,7 @@ def build_matchup_context(
                             league_points.append(opponent_points)
                         own_poss, opp_poss = record["own_possessions"], record["opponent_possessions"]
                         duration = (record.get("own_minutes") or 0.0) / 5.0
-                        if own_poss is not None and opp_poss is not None and duration > 0:
+                        if own_poss is not None and opp_poss is not None and 45.0 <= duration <= 70.0:
                             league_paces.append(((own_poss + opp_poss) / 2.0) / duration * 48.0)
                 for row in home_rows:
                     own_poss, opp_poss = row["own_possessions"], row["opponent_possessions"]
@@ -229,7 +229,7 @@ def build_matchup_context(
                     if row["opponent"].get("pts") is not None:
                         home_points_allowed.append(row["opponent"]["pts"])
                     duration = (row.get("own_minutes") or 0.0) / 5.0
-                    if row["own_possessions"] is not None and row["opponent_possessions"] is not None and duration > 0:
+                    if row["own_possessions"] is not None and row["opponent_possessions"] is not None and 45.0 <= duration <= 70.0:
                         home_paces.append(((row["own_possessions"] + row["opponent_possessions"]) / 2.0) / duration * 48.0)
                 for row in away_rows:
                     own_poss, opp_poss = row["own_possessions"], row["opponent_possessions"]
@@ -243,7 +243,7 @@ def build_matchup_context(
                     if row["opponent"].get("pts") is not None:
                         away_points_allowed.append(row["opponent"]["pts"])
                     duration = (row.get("own_minutes") or 0.0) / 5.0
-                    if row["own_possessions"] is not None and row["opponent_possessions"] is not None and duration > 0:
+                    if row["own_possessions"] is not None and row["opponent_possessions"] is not None and 45.0 <= duration <= 70.0:
                         away_paces.append(((row["own_possessions"] + row["opponent_possessions"]) / 2.0) / duration * 48.0)
                 # Home team offense vs away defense; away offense vs home defense.
                 def avg(values: list[float]) -> float | None:
@@ -285,10 +285,11 @@ def build_matchup_context(
                 if mins is None:
                     mins = _number(log, "minutes")
                 if pid and mins is not None and mins > 0:
-                    minutes_by_player[pid].append(mins)
+                    minutes_by_player[pid].append((log_day, mins))
             rotation_averages = [
-                statistics.mean(values[:10]) for values in minutes_by_player.values()
-                if len(values[:10]) >= 5 and statistics.mean(values[:10]) >= 20
+                statistics.mean([minutes for _, minutes in sorted(values, reverse=True)[:10]])
+                for values in minutes_by_player.values()
+                if len(values) >= 5 and statistics.mean([minutes for _, minutes in sorted(values, reverse=True)[:10]]) >= 20
             ]
             context["league_average_minutes"] = round(statistics.mean(rotation_averages), 1) if rotation_averages else None
         item["matchup_context"] = context
