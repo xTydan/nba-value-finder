@@ -22,9 +22,12 @@
           "l10_hits": 10,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "LOSS",
+          "actual": 5,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Obi Toppin|player_blocks_steals|0.5|UNDER",
@@ -43,9 +46,12 @@
           "l10_hits": 10,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 0,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Jarrett Allen|player_blocks_steals|2.5|UNDER",
@@ -64,9 +70,12 @@
           "l10_hits": 10,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 1,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Kel'el Ware|player_points_rebounds|16.5|UNDER",
@@ -85,9 +94,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 12,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Alperen Sengun|player_threes|0.5|OVER",
@@ -106,9 +118,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 1,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Derrick Jones Jr.|player_turnovers|0.5|OVER",
@@ -127,9 +142,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 1,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Rui Hachimura|player_points_rebounds|16.5|OVER",
@@ -148,9 +166,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 22,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Darius Acuff Jr.|player_rebounds_assists|9.5|OVER",
@@ -169,9 +190,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "LOSS",
+          "actual": 5,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Jake LaRavia|player_assists|1.5|OVER",
@@ -190,9 +214,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "LOSS",
+          "actual": 1,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|De'Aaron Fox|player_points_assists|21.5|UNDER",
@@ -211,9 +238,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
+          "result": "VOID",
           "actual": null,
-          "manual_video_capture": true
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Anfernee Simons|player_blocks_steals|0.5|UNDER",
@@ -232,9 +262,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 0,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Kris Dunn|player_points_rebounds_assists|9.5|OVER",
@@ -253,9 +286,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 18,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Tari Eason|player_rebounds_assists|6.5|OVER",
@@ -274,9 +310,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 8,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Keyonte George|player_rebounds_assists|10.5|OVER",
@@ -295,9 +334,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "LOSS",
+          "actual": 6,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Mo Bamba|player_turnovers|1.5|UNDER",
@@ -316,9 +358,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 0,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Jaden McDaniels|player_rebounds_assists|8.5|OVER",
@@ -337,9 +382,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 16,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Damian Lillard|player_rebounds|3.5|UNDER",
@@ -358,9 +406,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 3,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Julian Champagnie|player_points_assists|14.5|UNDER",
@@ -379,9 +430,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "LOSS",
+          "actual": 25,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Danny Wolf|player_blocks_steals|1.5|UNDER",
@@ -400,9 +454,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 1,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Mikel Brown Jr.|player_rebounds|2.5|UNDER",
@@ -421,9 +478,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "LOSS",
+          "actual": 5,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Brice Sensabaugh|player_rebounds|2.5|OVER",
@@ -442,9 +502,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "WIN",
+          "actual": 4,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         },
         {
           "pick_id": "manual|2026-11-24|Darius Acuff Jr.|player_points_assists|28.5|OVER",
@@ -463,9 +526,12 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-24T00:43:00+01:00",
-          "result": "PENDING",
-          "actual": null,
-          "manual_video_capture": true
+          "result": "LOSS",
+          "actual": 16,
+          "manual_video_capture": true,
+          "settled_at": "2026-11-24T08:35:00+00:00",
+          "manual_settlement": true,
+          "settlement_source": "NBA/ESPN box scores cross-checked with HoopMetrics and player game logs"
         }
       ]
     },
