@@ -62,6 +62,8 @@ def _team_key(value: Any) -> str:
 
 
 def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value, finalized_games: set[tuple[str, str, str]]) -> bool:
+    from app.sportsdataverse import normalize_name
+
     changed = False
     for pick in day_data.get("picks", []):
         if pick.get("result") != "PENDING":
@@ -139,7 +141,7 @@ def update_pick_history(
     finalized_games: set[tuple[str, str, str]] | None = None,
 ) -> dict[str, Any]:
     """Settle archived picks and freeze the first valid board for each Warsaw slate day."""
-    from app.sportsdataverse import _stat_value, normalize_name
+    from app.sportsdataverse import _stat_value
 
     now = now or datetime.now(timezone.utc)
     now = now.astimezone(timezone.utc) if now.tzinfo else now.replace(tzinfo=timezone.utc)
