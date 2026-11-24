@@ -179,12 +179,13 @@ def update_pick_history(
     all_history.setdefault("version", 1)
     all_history.setdefault("days", {})
 
-    # Archive every upcoming Warsaw slate day represented in the current board.
+    # Keep the daily top-six snapshot live until the slate's first scheduled tipoff.
+    # Once that first game starts, the day's captured picks are immutable.
     # PropLine and ESPN use independent event IDs, so match by ET date and the
     # normalized home/away team names instead of assuming their IDs are equal.
     pending_days = sorted(
         ((day, tipoff) for day, tipoff in first_tipoff_by_day.items()
-         if day not in history["days"]),
+         if day not in history["days"] or tipoff > now),
         key=lambda item: item[1],
     )
     capture_day = None
@@ -275,7 +276,7 @@ def update_pick_history(
                 "result": "PENDING",
                 "actual": None,
             })
-            if len(picks) >= 24:
+            if len(picks) >= 6:
                 break
         if picks:
             history["days"][day] = {
