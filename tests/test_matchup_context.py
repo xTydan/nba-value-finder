@@ -4,7 +4,7 @@ from app.matchup_context import build_matchup_context
 def _team_row(game, day, team_id, abbreviation, points, fga, fta, oreb, tov, reb, ast):
     return {
         "game_id": game, "game_date": day, "team_id": team_id,
-        "team_abbreviation": abbreviation, "min": "30",
+        "team_abbreviation": abbreviation, "player_id": f"player-{team_id}", "min": "240",
         "pts": str(points), "fga": str(fga), "fta": str(fta),
         "oreb": str(oreb), "tov": str(tov), "reb": str(reb),
         "ast": str(ast), "fg3m": "10", "stl": "5", "blk": "4",
