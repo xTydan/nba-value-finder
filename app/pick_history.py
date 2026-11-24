@@ -140,7 +140,7 @@ def update_pick_history(
     games: list[dict[str, Any]] | None = None,
     finalized_games: set[tuple[str, str, str]] | None = None,
 ) -> dict[str, Any]:
-    """Settle archived picks and freeze the first valid board for each Warsaw slate day."""
+    """Settle archived picks and refresh the daily top six until the first Warsaw-slate tipoff."""
     from app.sportsdataverse import _stat_value
 
     now = now or datetime.now(timezone.utc)
