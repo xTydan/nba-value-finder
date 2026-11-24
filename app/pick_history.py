@@ -74,18 +74,40 @@ def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value, fi
         away = _team_key(pick.get("away_team"))
         if not home or not away or (game_day, home, away) not in finalized_games:
             continue
-        matching = [
+        # Prefer a canonical player-ID match, but do not let a provider ID
+        # mismatch block settlement when the normalized player name identifies
+        # the player unambiguously in the same game.
+        same_day = [
             row for row in logs
-            if (
-                (player_id and str(row.get("player_id") or "") == player_id)
-                or (not player_id and str(row.get("player_name") or "").casefold() == str(pick.get("player") or "").casefold())
-            )
-            and str(row.get("game_date") or "")[:10] == game_day
+            if str(row.get("game_date") or "")[:10] == game_day
         ]
-        if not matching:
+        player_name = normalize_name(pick.get("player"))
+        id_matches = [
+            row for row in same_day
+            if player_id
+            and str(row.get("player_id") or "") == player_id
+            and normalize_name(row.get("player_name")) == player_name
+        ]
+        matching = id_matches or [
+            row for row in same_day
+            if normalize_name(row.get("player_name")) == player_name
+        ]
+        # If the archive has a team and the feed exposes a matching team
+        # abbreviation, use it to disambiguate players with the same name.
+        pick_team = normalize_name(pick.get("team"))
+        if pick_team:
+            team_matches = [
+                row for row in matching
+                if normalize_name(row.get("team_abbreviation")) == pick_team
+            ]
+            if team_matches:
+                matching = team_matches
+        if len(matching) != 1:
             continue
         row = matching[0]
         minutes = _number(row.get("min"))
+        if minutes is None:
+            minutes = _number(row.get("minutes"))
         if minutes == 0:
             pick["result"] = "VOID"
             pick["settled_at"] = datetime.now(timezone.utc).isoformat()
@@ -117,7 +139,7 @@ def update_pick_history(
     finalized_games: set[tuple[str, str, str]] | None = None,
 ) -> dict[str, Any]:
     """Settle archived picks and freeze the first valid board for each Warsaw slate day."""
-    from app.sportsdataverse import _stat_value
+    from app.sportsdataverse import _stat_value, normalize_name
 
     now = now or datetime.now(timezone.utc)
     now = now.astimezone(timezone.utc) if now.tzinfo else now.replace(tzinfo=timezone.utc)
