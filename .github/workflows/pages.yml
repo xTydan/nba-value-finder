@@ -5,8 +5,8 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    # Avoid the top-of-hour congestion window; retry often in case GitHub delays a run.
-    - cron: "3,13,23,33,43,53 * * * *"
+    # Build and publish a fresh data snapshot once per hour.
+    - cron: "7 * * * *"
 
 concurrency:
   group: nba-value-finder-pages
