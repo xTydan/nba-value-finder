@@ -380,3 +380,20 @@ body{background:radial-gradient(ellipse at 50% -15%,#142d4b 0%,#0a1423 42%,#080f
  .compact-pick>strong{font-size:12px}
  .compact-expand{grid-column:2;grid-row:1}
 }
+
+
+/* Fix compact pick overlap and restore TOP PICKS + collapsed full list layout */
+.top-picks-section{margin-top:16px}
+.top-picks-section>.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 12px;color:#edf5ff}
+.top-picks-section>.section-heading b{font-size:13px;letter-spacing:.6px}
+.top-picks-section>.section-heading small{color:#9aafc8;font-size:11px}
+.all-picks-collapse{margin-top:18px}
+.pick-card>.pick-compact{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:9px 12px;align-items:center}
+.pick-card>.pick-compact>.compact-identity{grid-column:1;grid-row:1;min-width:0}
+.pick-card>.pick-compact>.compact-expand{grid-column:2;grid-row:1;justify-self:end}
+.pick-card>.pick-compact>.compact-options{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;min-width:0}
+.pick-card .compact-pick{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;gap:5px 8px;min-width:0;overflow:hidden;padding:8px 9px}
+.pick-card .compact-pick>b{grid-column:1/-1;grid-row:1;min-width:0;white-space:normal;overflow-wrap:anywhere;font-size:11px}
+.pick-card .compact-pick>.compact-coverage{grid-column:1;grid-row:2;min-width:0;white-space:nowrap;font-size:10px}
+.pick-card .compact-pick>strong{grid-column:2;grid-row:2;justify-self:end;font-size:12px;white-space:nowrap}
+@media(max-width:700px){.pick-card>.pick-compact{grid-template-columns:minmax(0,1fr) auto;gap:8px}.pick-card>.pick-compact>.compact-options{grid-column:1/-1;grid-row:2;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.pick-card .compact-pick{grid-template-columns:minmax(0,1fr) auto;gap:4px 5px;padding:7px 6px}.pick-card .compact-pick>b{font-size:10px}.pick-card .compact-pick>.compact-coverage{font-size:9px}.pick-card .compact-pick>strong{font-size:11px}}
