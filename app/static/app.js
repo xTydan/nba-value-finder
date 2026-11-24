@@ -97,7 +97,7 @@ async function loadAllPickHistory(){try{const res=await fetch('./data/all_pick_h
 ['market-filter','sort-filter','player-filter','odds-range'].forEach(id=>byId(id)?.addEventListener('input',renderBoard));
 byId('match-all-toggle')?.addEventListener('click',()=>{showAllMatchProps=!showAllMatchProps;renderBoard()});
 loadSnapshot();loadPickHistory();loadAllPickHistory();
-// Odświeżaj dane najwyżej raz na godzinę. Po powrocie do karty nadrabiaj
+// Odświeżaj dane co 15 minut. Po powrocie do karty nadrabiaj
 // odświeżenie, jeśli przeglądarka zawiesiła timery w tle (częste na telefonach).
 const AUTO_REFRESH_MS=15*60*1000;
 let refreshInProgress=false;
