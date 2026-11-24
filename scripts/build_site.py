@@ -72,18 +72,19 @@ def main():
     # not proof that a game has officially reached Final.
     pending_dates = set()
     history_file = ROOT / "data" / "pick_history.json"
-    try:
-        archived = json.loads(history_file.read_text(encoding="utf-8"))
-        for _archive_day, day_data in (archived.get("days") or {}).items():
-            for pick in day_data.get("picks", []):
-                if pick.get("result") == "PENDING":
-                    # Archive keys use Warsaw dates; ESPN scoreboard dates use
-                    # the US/Eastern game date stored on each pick.
-                    game_day_et = str(pick.get("game_date_et") or "").strip()
-                    if game_day_et:
-                        pending_dates.add(game_day_et)
-    except (OSError, ValueError, json.JSONDecodeError):
-        pass
+    for archive_path in (history_file, ROOT / "data" / "all_pick_history.json"):
+        try:
+            archived = json.loads(archive_path.read_text(encoding="utf-8"))
+            for _archive_day, day_data in (archived.get("days") or {}).items():
+                for pick in day_data.get("picks", []):
+                    if pick.get("result") == "PENDING":
+                        # Archive keys use Warsaw dates; ESPN scoreboard dates use
+                        # the US/Eastern game date stored on each pick.
+                        game_day_et = str(pick.get("game_date_et") or "").strip()
+                        if game_day_et:
+                            pending_dates.add(game_day_et)
+        except (OSError, ValueError, json.JSONDecodeError):
+            pass
     scoreboard_dates = {(now + timedelta(days=offset)).strftime("%Y%m%d") for offset in (0, 1)}
     scoreboard_dates.update(day.replace("-", "") for day in pending_dates)
     for date in sorted(scoreboard_dates):
