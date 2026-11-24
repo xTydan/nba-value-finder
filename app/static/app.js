@@ -45,10 +45,14 @@ function renderBoard(){
   return bh-ah||Math.min(...ao.map(v=>Math.abs(v-1.90)))-Math.min(...bo.map(v=>Math.abs(v-1.90)))||b.sample_size-a.sample_size;
  });
  rows=rows.slice(0,24);
+ const topRows=rows.slice(0,6);
  setText('pick-count',rows.length+(selectedEvent?(showAllMatchProps?' linii meczu':' najlepszych linii meczu'):' najlepszych linii'));
+ setText('top-pick-count',topRows.length+' najlepszych');
  const toggle=byId('match-all-toggle');if(toggle){toggle.hidden=!selectedEvent;toggle.textContent=showAllMatchProps?'Pokaż tylko najlepsze propsy':'Pokaż wszystkie linie (maks. 24)'}
- const box=byId('picks');if(!box)return;
- box.innerHTML=rows.length?rows.map(cardHTML).join(''):'<article class="empty-state"><h2>'+(selectedEvent?'Brak pasujących propsów w tym meczu':'Brak mocnych propozycji')+'</h2><p>'+(selectedEvent?(showAllMatchProps?'Nie znaleziono ofert w wybranym zakresie kursów.':'Brak propsów z pokryciem co najmniej 8/10 w wybranym zakresie. Możesz rozszerzyć kursy lub wyświetlić wszystkie linie.'):'Brak ofert z pokryciem co najmniej 8/10 w wybranym zakresie kursów.')+'</p></article>';
+ const box=byId('picks'),topBox=byId('top-picks');if(!box||!topBox)return;
+ const empty='<article class="empty-state"><h2>'+(selectedEvent?'Brak pasujących propsów':'Brak mocnych propozycji')+'</h2><p>'+(selectedEvent?(showAllMatchProps?'Nie znaleziono ofert w wybranym zakresie kursów.':'Brak propsów z pokryciem co najmniej 8/10 w wybranym zakresie. Możesz rozszerzyć kursy lub wyświetlić wszystkie linie.'):'Brak ofert z pokryciem co najmniej 8/10 w wybranym zakresie kursów.')+'</p></article>';
+ topBox.innerHTML=topRows.length?topRows.map(cardHTML).join(''):empty;
+ box.innerHTML=rows.length?rows.map(cardHTML).join(''):empty;
 }
 function historyDayStats(picks){
  const counts={WIN:0,LOSS:0,PUSH:0,VOID:0,PENDING:0};
