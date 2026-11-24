@@ -54,7 +54,11 @@ def _pick_side(row: dict[str, Any]) -> tuple[str, int, dict[str, Any] | None]:
 
 def _team_key(value: Any) -> str:
     import re
-    return re.sub(r"[^a-z0-9]", "", str(value or "").casefold())
+    key = re.sub(r"[^a-z0-9]", "", str(value or "").casefold())
+    # ESPN commonly shortens the franchise name to "LA Clippers".
+    if key in {"laclippers", "losangelesclippers"}:
+        return "clippers"
+    return key
 
 
 def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value, finalized_games: set[tuple[str, str, str]]) -> bool:
