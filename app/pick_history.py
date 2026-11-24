@@ -219,7 +219,8 @@ def update_pick_history(
     # shown by the board, separately from the curated daily top-24 archive.
     all_pending_days = sorted(
         ((day, tipoff) for day, tipoff in first_tipoff_by_day.items()
-         if day >= "2026-11-25" and day not in all_history["days"]),
+         if day >= "2026-11-25"
+         and (day not in all_history["days"] or tipoff > now)),
         key=lambda item: item[1],
     )
 
