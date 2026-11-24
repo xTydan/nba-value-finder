@@ -37,7 +37,7 @@ def test_matchup_context_aggregates_team_logs_and_excludes_same_day():
     assert context["home_offensive_rating"] is not None
     assert context["away_defensive_rating"] is not None
     assert context["home_opponent_market_allowed"] == 100
-    assert context["home_pace_proxy"] is not None
+    assert context["home_possessions_per_game"] is not None
     assert summary["offers_with_matchup_context"] == 1
 
 
