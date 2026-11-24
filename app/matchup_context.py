@@ -124,6 +124,7 @@ def _team_games(logs: list[dict[str, str]]) -> tuple[list[dict[str, Any]], dict[
             "team_name": str(first.get("team_name") or first.get("team") or ""),
             "date": _game_day(first.get("game_date")),
             "totals": totals,
+            "team_minutes": sum((_number(row, "min") if _number(row, "min") is not None else (_number(row, "minutes") or 0.0)) for row in rows),
         })
     return games, aliases
 
@@ -157,6 +158,7 @@ def build_matchup_context(
                 "opponent": opponent["totals"],
                 "own_possessions": _possessions(own["totals"]),
                 "opponent_possessions": _possessions(opponent["totals"]),
+                "own_minutes": own.get("team_minutes"),
             })
 
     # Resolve full sportsbook team names using the team's own labels in logs
@@ -203,6 +205,18 @@ def build_matchup_context(
                 home_rows, away_rows = home_rows[:10], away_rows[:10]
                 home_or, home_dr, home_poss, home_allowed = [], [], [], []
                 away_or, away_dr, away_poss, away_allowed = [], [], [], []
+                home_points_allowed, away_points_allowed, league_points = [], [], []
+                home_paces, away_paces, league_paces = [], [], []
+                for team_records in records.values():
+                    eligible = sorted((r for r in team_records if r["date"] and r["date"] < cutoff), key=lambda r: r["date"], reverse=True)
+                    for record in eligible[:10]:
+                        opponent_points = record["opponent"].get("pts")
+                        if opponent_points is not None:
+                            league_points.append(opponent_points)
+                        own_poss, opp_poss = record["own_possessions"], record["opponent_possessions"]
+                        duration = (record.get("own_minutes") or 0.0) / 5.0
+                        if own_poss is not None and opp_poss is not None and duration > 0:
+                            league_paces.append(((own_poss + opp_poss) / 2.0) / duration * 48.0)
                 for row in home_rows:
                     own_poss, opp_poss = row["own_possessions"], row["opponent_possessions"]
                     if own_poss and opp_poss and "pts" in row["own"] and "pts" in row["opponent"]:
@@ -212,6 +226,11 @@ def build_matchup_context(
                     val = _market_value(row["opponent"], market)
                     if val is not None:
                         home_allowed.append(val)
+                    if row["opponent"].get("pts") is not None:
+                        home_points_allowed.append(row["opponent"]["pts"])
+                    duration = (row.get("own_minutes") or 0.0) / 5.0
+                    if row["own_possessions"] is not None and row["opponent_possessions"] is not None and duration > 0:
+                        home_paces.append(((row["own_possessions"] + row["opponent_possessions"]) / 2.0) / duration * 48.0)
                 for row in away_rows:
                     own_poss, opp_poss = row["own_possessions"], row["opponent_possessions"]
                     if own_poss and opp_poss and "pts" in row["own"] and "pts" in row["opponent"]:
@@ -221,6 +240,11 @@ def build_matchup_context(
                     val = _market_value(row["opponent"], market)
                     if val is not None:
                         away_allowed.append(val)
+                    if row["opponent"].get("pts") is not None:
+                        away_points_allowed.append(row["opponent"]["pts"])
+                    duration = (row.get("own_minutes") or 0.0) / 5.0
+                    if row["own_possessions"] is not None and row["opponent_possessions"] is not None and duration > 0:
+                        away_paces.append(((row["own_possessions"] + row["opponent_possessions"]) / 2.0) / duration * 48.0)
                 # Home team offense vs away defense; away offense vs home defense.
                 def avg(values: list[float]) -> float | None:
                     return round(statistics.mean(values), 1) if len(values) >= MIN_TEAM_GAMES else None
@@ -238,12 +262,35 @@ def build_matchup_context(
                     "away_net_rating": round(avg(away_or) - avg(away_dr), 1) if avg(away_or) is not None and avg(away_dr) is not None else None,
                     "home_possessions_per_game": avg(home_poss),
                     "away_possessions_per_game": avg(away_poss),
+                    "home_points_allowed": avg(home_points_allowed),
+                    "away_points_allowed": avg(away_points_allowed),
+                    "league_points_allowed": avg(league_points),
+                    "home_pace": avg(home_paces), "away_pace": avg(away_paces),
+                    "league_pace": avg(league_paces),
+                    "league_average_minutes": None,
                     "home_opponent_market_allowed": avg(home_allowed),
                     "away_opponent_market_allowed": avg(away_allowed),
                     "opponent_market": market,
-                    "note": "Ratingi z ostatnich maks. 10 zakończonych meczów przed datą spotkania. Pace nie jest podawane bez potwierdzonego czasu gry.",
+                    "note": "Punkty rywali i Pace z maks. 10 wcześniejszych meczów. Średnia ligi liczona z tego samego okresu.",
                 }
                 attached += 1
+        if cutoff:
+            minutes_by_player: dict[str, list[float]] = defaultdict(list)
+            for log in logs:
+                log_day = _game_day(log.get("game_date"))
+                if not log_day or log_day >= cutoff:
+                    continue
+                pid = str(log.get("player_id") or "").strip()
+                mins = _number(log, "min")
+                if mins is None:
+                    mins = _number(log, "minutes")
+                if pid and mins is not None and mins > 0:
+                    minutes_by_player[pid].append(mins)
+            rotation_averages = [
+                statistics.mean(values[:10]) for values in minutes_by_player.values()
+                if len(values[:10]) >= 5 and statistics.mean(values[:10]) >= 20
+            ]
+            context["league_average_minutes"] = round(statistics.mean(rotation_averages), 1) if rotation_averages else None
         item["matchup_context"] = context
         enriched.append(item)
     return enriched, {
@@ -252,5 +299,6 @@ def build_matchup_context(
         "teams_with_history": len(records),
         "min_team_games": MIN_TEAM_GAMES,
         "possession_formula": "FGA - OREB + TOV + 0.44 × FTA",
-        "pace_status": "not_calculated_missing_verified_game_duration",
+        "pace_status": "calculated_from_possessions_and_team_player_minutes_including_overtime",
+        "league_baselines": "same pregame window; minutes baseline includes rotation players averaging at least 20 minutes",
     }
