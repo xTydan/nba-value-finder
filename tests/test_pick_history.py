@@ -30,15 +30,15 @@ def _finalized():
     return {("2026-11-23", "home", "away")}
 
 
-def test_does_not_capture_before_first_tipoff(tmp_path, monkeypatch):
+def test_captures_before_first_tipoff_when_valid_picks_exist(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     site_data = tmp_path / "site" / "data"
     before_tipoff = datetime(2026, 11, 23, 23, 45, tzinfo=timezone.utc)
     result = update_pick_history(_board(), [], site_data, before_tipoff, games=_games())
-    assert result["today_picks"] == 0
-    assert result["capture_day"] is None
+    assert result["today_picks"] == 1
+    assert result["capture_day"] == "2026-11-24"
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
-    assert saved["days"] == {}
+    assert len(saved["days"]["2026-11-24"]["picks"]) == 1
 
 
 
@@ -51,13 +51,16 @@ def test_game_at_warsaw_midnight_is_archived_under_new_local_day(tmp_path, monke
 
     before_midnight = datetime(2026, 11, 23, 22, 59, tzinfo=timezone.utc)
     result = update_pick_history(board, [], site_data, before_midnight, games=games)
-    assert result["capture_day"] is None
-    assert result["today_picks"] == 0
-
-    after_midnight = datetime(2026, 11, 23, 23, 7, tzinfo=timezone.utc)
-    result = update_pick_history(board, [], site_data, after_midnight, games=games)
     assert result["capture_day"] == "2026-11-24"
     assert result["today_picks"] == 1
+
+    # Once frozen before local midnight, the next build cannot replace it.
+    after_midnight = datetime(2026, 11, 23, 23, 7, tzinfo=timezone.utc)
+    changed_board = _board()
+    changed_board[0]["line"] = 99.5
+    result = update_pick_history(changed_board, [], site_data, after_midnight, games=games)
+    assert result["capture_day"] is None
+    assert result["today_picks"] == 0
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
     assert "2026-11-24" in saved["days"]
 
