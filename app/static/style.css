@@ -308,3 +308,17 @@ body{background:radial-gradient(ellipse at 50% -15%,#142d4b 0%,#0a1423 42%,#080f
  nav{max-width:100%;overflow-x:auto}
  .pick-card{width:100%;max-width:100%;padding:12px!important}
 }
+
+
+/* Collapsible pick archives */
+.history-collapse{border:1px solid #294363;border-radius:12px;padding:0 16px 14px;background:linear-gradient(150deg,#14243a,#0e1929);box-shadow:0 8px 24px #0004}
+.history-collapse-head{display:flex;justify-content:space-between;align-items:center;gap:14px;list-style:none;cursor:pointer;padding:16px 2px;color:#edf5ff}
+.history-collapse-head::-webkit-details-marker{display:none}
+.history-collapse-head::after{content:"＋";flex:0 0 auto;color:#63bdff;font-size:20px;font-weight:800}
+.history-collapse[open]>.history-collapse-head::after{content:"−"}
+.history-collapse-head>span{display:block;min-width:0}
+.history-collapse-head b{display:block;color:#f0f7ff;font-size:15px}
+.history-collapse-head small{display:block;margin-top:5px;color:#9aafc8}
+.history-collapse-head>#history-summary,.history-collapse-head>#all-history-summary{white-space:normal;text-align:right;font-size:10px}
+.history-collapse[open]>.history-days{margin-top:2px}
+@media(max-width:600px){.history-collapse{padding:0 10px 10px}.history-collapse-head{align-items:flex-start;gap:8px}.history-collapse-head b{font-size:13px}.history-collapse-head>#history-summary,.history-collapse-head>#all-history-summary{max-width:42%;font-size:9px}}
