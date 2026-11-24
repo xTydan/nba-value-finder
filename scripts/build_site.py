@@ -135,7 +135,7 @@ def main():
 
     snapshot = {
         "generated_at": now.isoformat(),
-        "refresh_minutes": 30,
+        "refresh_minutes": 60,
         "sources": [odds_status, injury_status, stats_status, *game_statuses],
         "player_analysis": player_analysis,
         "analysis_summary": analysis_summary,
