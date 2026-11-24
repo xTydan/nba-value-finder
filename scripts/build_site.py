@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT))
 
 from app import espn, prop_line, sportsdataverse
 from app.props_board import build_props_board
-from app.pick_history import update_pick_history
+from app.pick_history import update_pick_history, _team_key
 from app.espn import ESPNError
 from app.prop_line import PropLineError
 
@@ -74,9 +74,14 @@ def main():
     history_file = ROOT / "data" / "pick_history.json"
     try:
         archived = json.loads(history_file.read_text(encoding="utf-8"))
-        for day, day_data in (archived.get("days") or {}).items():
-            if any(p.get("result") == "PENDING" for p in day_data.get("picks", [])):
-                pending_dates.add(day)
+        for _archive_day, day_data in (archived.get("days") or {}).items():
+            for pick in day_data.get("picks", []):
+                if pick.get("result") == "PENDING":
+                    # Archive keys use Warsaw dates; ESPN scoreboard dates use
+                    # the US/Eastern game date stored on each pick.
+                    game_day_et = str(pick.get("game_date_et") or "").strip()
+                    if game_day_et:
+                        pending_dates.add(game_day_et)
     except (OSError, ValueError, json.JSONDecodeError):
         pass
     scoreboard_dates = {(now + timedelta(days=offset)).strftime("%Y%m%d") for offset in (0, 1)}
@@ -99,7 +104,6 @@ def main():
         )
     print("Scoreboard date diagnostics:", json.dumps([{"id": g.get("id"), "name": g.get("name"), "date": g.get("date"), "commence_time": g.get("commence_time")} for g in games[:20]], ensure_ascii=False))
     finalized_games = set()
-    import re
     from zoneinfo import ZoneInfo
     for game in games:
         if str(game.get("status_state") or "").lower() != "post":
@@ -111,8 +115,7 @@ def main():
         if home and away and game_date:
             parsed = datetime.fromisoformat(str(game_date).replace("Z", "+00:00"))
             day_et = parsed.astimezone(ZoneInfo("America/New_York")).date().isoformat()
-            norm = lambda value: re.sub(r"[^a-z0-9]", "", str(value or "").casefold())
-            finalized_games.add((day_et, norm(home), norm(away)))
+            finalized_games.add((day_et, _team_key(home), _team_key(away)))
     props_board = build_props_board(odds_items)
     history_status = update_pick_history(
         props_board, historical_data[0] if historical_data else [], SITE / "data", now,
