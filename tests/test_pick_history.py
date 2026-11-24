@@ -60,9 +60,10 @@ def test_game_at_warsaw_midnight_is_archived_under_new_local_day(tmp_path, monke
     changed_board[0]["line"] = 99.5
     result = update_pick_history(changed_board, [], site_data, after_midnight, games=games)
     assert result["capture_day"] is None
-    assert result["today_picks"] == 0
+    assert result["today_picks"] == 1
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
     assert "2026-11-24" in saved["days"]
+    assert saved["days"]["2026-11-24"]["picks"][0]["line"] == 13.5
 
 
 def test_capture_retries_after_delayed_workflow_without_90_minute_cutoff(tmp_path, monkeypatch):
