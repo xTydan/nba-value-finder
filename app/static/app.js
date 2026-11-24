@@ -41,10 +41,10 @@ function historyDayStats(picks){
  const decided=counts.WIN+counts.LOSS;
  return {...counts,profit,settled,decided,hitRate:decided?counts.WIN/decided*100:0,roi:settled?profit/settled*100:0};
 }
-function renderPickHistory(history){
- const root=byId('pick-history');if(!root)return;
+function renderPickHistory(history,rootId='pick-history',summaryId='history-summary',allTypes=false){
+ const root=byId(rootId);if(!root)return;
  const days=Object.entries(history?.days||{}).sort((a,b)=>b[0].localeCompare(a[0]));
- if(!days.length){root.innerHTML='<article class="empty-state"><h2>Historia dopiero się buduje</h2><p>Archiwum zapisze pierwszą dzienną listę maksymalnie 24 propozycji, które spełnią kryteria rankingu. Wyniki będą rozliczane po pojawieniu się oficjalnych statystyk meczu.</p></article>';setText('history-summary','0 dni');return;}
+ if(!days.length){root.innerHTML='<article class="empty-state"><h2>Historia dopiero się buduje</h2><p>'+(allTypes?'Od 25.11 archiwum zapisuje wszystkie kwalifikujące się strony OVER i UNDER widoczne na stronie.':'Archiwum zapisuje dzienną listę maksymalnie 24 najlepszych propozycji.')+' Wyniki będą rozliczane po pojawieniu się oficjalnych statystyk meczu.</p></article>';setText(summaryId,'0 dni');return;}
  let total={WIN:0,LOSS:0,PUSH:0,VOID:0,PENDING:0,profit:0,settled:0};
  root.innerHTML=days.map(([day,data])=>{
   const picks=data.picks||[],s=historyDayStats(picks);
@@ -54,7 +54,7 @@ function renderPickHistory(history){
   return '<article class="history-day"><div class="history-day-head"><div><b>'+esc(day)+'</b><small>Zapisano: '+esc(data.captured_at?new Date(data.captured_at).toLocaleString('pl-PL'):'—')+'</small></div><div class="history-day-score"><strong>'+s.WIN+'/'+(s.WIN+s.LOSS)+'</strong><small>skuteczność rozliczonych</small></div></div><div class="history-stats"><span><b>'+s.WIN+'</b> WIN</span><span><b>'+s.LOSS+'</b> LOSS</span><span><b>'+s.PUSH+'</b> PUSH</span><span><b>'+s.VOID+'</b> VOID</span><span><b>'+s.PENDING+'</b> PENDING</span><span class="'+(s.profit>=0?'positive':'negative')+'"><b>'+(s.profit>0?'+':'')+s.profit.toFixed(2)+'</b> j.</span></div><div class="history-table-wrap"><table class="history-table"><thead><tr><th>Zawodnik</th><th>Mecz</th><th>Rynek</th><th>Typ</th><th>Kurs</th><th>Bookmaker</th><th>L10</th><th>Wynik</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table></div></article>';
  }).join('');
  const decided=total.WIN+total.LOSS,rate=decided?Math.round(total.WIN/decided*100):0,roi=total.settled?total.profit/total.settled*100:0;
- setText('history-summary',days.length+' dni · '+total.WIN+'W / '+total.LOSS+'L · '+rate+'% skuteczności · ROI '+roi.toFixed(1)+'%');
+ setText(summaryId,days.length+' dni · '+total.WIN+'W / '+total.LOSS+'L · '+rate+'% skuteczności · ROI '+roi.toFixed(1)+'%');
 }
 function renderInjuries(items){const box=byId('injuries-list');if(!box)return;const rows=Array.isArray(items)?items:[];box.innerHTML=rows.length?rows.map(x=>'<article class="provider"><div class="odds-head"><b>'+esc(x.player||'Nieznany zawodnik')+'</b><span class="pill">'+esc(x.status||'STATUS NIEZNANY')+'</span></div><p>'+esc(x.team||'Drużyna nieznana')+(x.details?' · '+esc(x.details):'')+'</p><small>Źródło: ESPN · '+esc(x.date||'data aktualizacji niepodana')+'</small></article>').join(''):'<article class="provider"><b>Brak wpisów w raporcie</b><p>Brak wpisu nie oznacza potwierdzonej pełnej dyspozycji.</p></article>'}
 function renderGames(items){
@@ -77,10 +77,11 @@ function renderMatchInjuries(match){
 }
 async function loadSnapshot(){try{const res=await fetch('./data/latest.json?ts='+Date.now(),{cache:'no-store'});if(!res.ok)throw new Error('Snapshot HTTP '+res.status);const data=await res.json();const previousEvent=selectedEvent;allProps=Array.isArray(data.props_board)?data.props_board:[];analysisData=data.player_analysis||{};window.currentInjuries=Array.isArray(data.injuries)?data.injuries:[];const eventStillExists=previousEvent&&allProps.some(p=>String(p.event_id)===String(previousEvent));selectedEvent=eventStillExists?previousEvent:null;renderBoard();renderGames(data.games);const sources=Array.isArray(data.sources)?data.sources:[],ok=sources.filter(s=>s.available).length;setText('system-status',sources.length&&ok===sources.length?'● WSZYSTKIE ŹRÓDŁA OK':ok?'● DANE CZĘŚCIOWE':'● BRAK DANYCH');setText('updated',data.generated_at?'Ostatnia analiza: '+new Date(data.generated_at).toLocaleString('pl-PL'):'Brak daty analizy');setHTML('providers',sources.map(s=>'<article class="provider"><div class="odds-head"><b>'+esc(s.name)+'</b><span class="pill '+(s.available?'online':'')+'">'+(s.available?'OK':'BRAK DANYCH')+'</span></div>'+(s.error?'<p>'+esc(s.error)+'</p>':(s.message?'<p>'+esc(s.message)+'</p>':'<p>Źródło odpowiedziało poprawnie.</p>'))+'</article>').join(''))}catch(e){setText('system-status','● BŁĄD ŁADOWANIA DANYCH');setText('pick-count','—');setHTML('picks','<article class="provider"><b>Nie udało się wczytać danych</b><p>'+esc(e.message)+' · sprawdź GitHub Actions.</p></article>');setText('updated','Nie udało się pobrać aktualnego snapshotu')}}
 async function loadPickHistory(){try{const res=await fetch('./data/pick_history.json?ts='+Date.now(),{cache:'no-store'});if(!res.ok)throw new Error('History HTTP '+res.status);renderPickHistory(await res.json());}catch(e){setText('history-summary','Archiwum chwilowo niedostępne');setHTML('pick-history','<article class="empty-state"><p>Nie udało się wczytać archiwum: '+esc(e.message)+'</p></article>');}}
+async function loadAllPickHistory(){try{const res=await fetch('./data/all_pick_history.json?ts='+Date.now(),{cache:'no-store'});if(!res.ok)throw new Error('All history HTTP '+res.status);renderPickHistory(await res.json(),'all-pick-history','all-history-summary',true);}catch(e){setText('all-history-summary','Archiwum chwilowo niedostępne');setHTML('all-pick-history','<article class="empty-state"><p>Nie udało się wczytać pełnego archiwum: '+esc(e.message)+'</p></article>');}}
 ['market-filter','sort-filter','player-filter','odds-range'].forEach(id=>byId(id)?.addEventListener('input',renderBoard));
 byId('match-all-toggle')?.addEventListener('click',()=>{showAllMatchProps=!showAllMatchProps;renderBoard()});
-loadSnapshot();loadPickHistory();
+loadSnapshot();loadPickHistory();loadAllPickHistory();
 // Odświeżaj snapshot i archiwum co 30 minut; nie resetuj filtrów ani wybranego meczu.
 const AUTO_REFRESH_MS=30*60*1000;
 let refreshInProgress=false;
-setInterval(async()=>{if(refreshInProgress)return;refreshInProgress=true;try{await Promise.all([loadSnapshot(),loadPickHistory()]);}finally{refreshInProgress=false;}},AUTO_REFRESH_MS);
+setInterval(async()=>{if(refreshInProgress)return;refreshInProgress=true;try{await Promise.all([loadSnapshot(),loadPickHistory(),loadAllPickHistory()]);}finally{refreshInProgress=false;}},AUTO_REFRESH_MS);
