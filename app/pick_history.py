@@ -169,6 +169,16 @@ def update_pick_history(
     history.setdefault("version", 1)
     history.setdefault("days", {})
 
+    all_history_path = root_data / "all_pick_history.json"
+    try:
+        all_history = json.loads(all_history_path.read_text(encoding="utf-8"))
+        if not isinstance(all_history, dict):
+            raise ValueError("all history root must be an object")
+    except (OSError, ValueError, json.JSONDecodeError):
+        all_history = {"version": 1, "days": {}}
+    all_history.setdefault("version", 1)
+    all_history.setdefault("days", {})
+
     # Archive every upcoming Warsaw slate day represented in the current board.
     # PropLine and ESPN use independent event IDs, so match by ET date and the
     # normalized home/away team names instead of assuming their IDs are equal.
@@ -185,6 +195,10 @@ def update_pick_history(
     for day_data in history["days"].values():
         if _settle(day_data, logs, _stat_value, finalized_games):
             changed = True
+    all_changed = False
+    for day_data in all_history["days"].values():
+        if _settle(day_data, logs, _stat_value, finalized_games):
+            all_changed = True
 
     game_keys_by_day: dict[str, set[tuple[str, str]]] = {}
     for game in games or []:
@@ -199,6 +213,14 @@ def update_pick_history(
         if home and away:
             day = parsed.astimezone(WARSAW).date().isoformat()
             game_keys_by_day.setdefault(day, set()).add((_team_key(home), _team_key(away)))
+
+    # From Warsaw 2026-11-25 onward, keep every eligible OVER/UNDER side
+    # shown by the board, separately from the curated daily top-24 archive.
+    all_pending_days = sorted(
+        ((day, tipoff) for day, tipoff in first_tipoff_by_day.items()
+         if day >= "2026-11-25" and day not in all_history["days"]),
+        key=lambda item: item[1],
+    )
 
     for day, _tipoff in pending_days:
         candidates = []
@@ -264,6 +286,73 @@ def update_pick_history(
             if capture_day is None:
                 capture_day = day
 
+    all_capture_day = None
+    for day, _tipoff in all_pending_days:
+        candidates = []
+        allowed_matchups = game_keys_by_day.get(day, set())
+        for row in board:
+            row_time = _parse_datetime(row.get("commence_time"))
+            if not row_time or row_time.astimezone(WARSAW).date().isoformat() != day:
+                continue
+            matchup = (_team_key(row.get("home_team")), _team_key(row.get("away_team")))
+            if allowed_matchups and matchup not in allowed_matchups:
+                continue
+            if not matchup[0] or not matchup[1]:
+                continue
+            sample = int(row.get("sample_size") or 0)
+            if sample < 8:
+                continue
+            for side in ("over", "under"):
+                hits = int(row.get(f"{side}_hits") or 0)
+                quotes = row.get(f"{side}_quotes") or []
+                quote = next((
+                    q for q in quotes
+                    if _number(q.get("odds")) is not None
+                    and 1.70 <= float(q["odds"]) <= 2.20
+                ), None)
+                if hits < 8 or not quote:
+                    continue
+                candidates.append({
+                    "pick_id": "|".join(str(row.get(k) or "") for k in
+                        ("event_id", "player_id", "market", "line")) + "|" + side.upper(),
+                    "player": row.get("player"),
+                    "player_id": row.get("player_id"),
+                    "team": row.get("team") or row.get("team_abbreviation"),
+                    "home_team": row.get("home_team"),
+                    "away_team": row.get("away_team"),
+                    "event_id": row.get("event_id"),
+                    "game_date_et": _event_day_et(row.get("commence_time")),
+                    "market": row.get("market"),
+                    "line": row.get("line"),
+                    "side": side.upper(),
+                    "odds": float(quote["odds"]),
+                    "bookmaker": quote.get("bookmaker"),
+                    "l10_hits": hits,
+                    "l10_sample": sample,
+                    "captured_at": now.isoformat(),
+                    "result": "PENDING",
+                    "actual": None,
+                })
+        unique = {pick["pick_id"]: pick for pick in candidates}
+        picks = sorted(
+            unique.values(),
+            key=lambda p: (
+                -(p["l10_hits"] / max(1, p["l10_sample"])),
+                abs(p["odds"] - 1.90),
+                str(p["player"] or "").casefold(),
+                p["market"],
+                p["side"],
+            ),
+        )
+        if picks:
+            all_history["days"][day] = {
+                "captured_at": now.isoformat(),
+                "picks": picks,
+            }
+            all_changed = True
+            if all_capture_day is None:
+                all_capture_day = day
+
     if capture_day:
         today = capture_day
     if changed or not history_path.exists():
@@ -276,12 +365,26 @@ def update_pick_history(
         json.dumps(history, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
+    if all_changed or not all_history_path.exists():
+        all_history_path.write_text(
+            json.dumps(all_history, ensure_ascii=False, indent=2) + "\\n",
+            encoding="utf-8",
+        )
+    (site_data_dir / "all_pick_history.json").write_text(
+        json.dumps(all_history, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
     return {
         "days": len(history["days"]),
+        "all_days": len(all_history["days"]),
+        "all_today_picks": len(all_history["days"].get(today, {}).get("picks", [])),
+        "all_capture_day": all_capture_day,
         "today_picks": len(history["days"].get(today, {}).get("picks", [])),
         "capture_day": capture_day,
         "first_tipoff": first_tipoff_by_day.get(capture_day).isoformat() if capture_day else None,
         "waiting_for_first_tipoff": False,
         "changed": changed,
+        "all_changed": all_changed,
         "path": str(history_path),
+        "all_path": str(all_history_path),
     }
