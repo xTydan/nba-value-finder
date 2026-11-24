@@ -252,3 +252,79 @@ def test_settlement_uses_minutes_fallback_for_dnp(tmp_path, monkeypatch):
                         games=[], finalized_games=_finalized())
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
     assert saved["days"]["2026-11-24"]["picks"][0]["result"] == "VOID"
+
+
+def test_separate_all_archive_captures_each_eligible_side_from_nov_25(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    board = _board()
+    board[0]["commence_time"] = "2026-11-25T00:00:00Z"
+    board[0]["under_hits"] = 8
+    board[0]["under_quotes"] = [{"odds": 1.85, "bookmaker": "Book Under"}]
+    games = [{
+        "id": "espn-event-1",
+        "date": "2026-11-25T00:00:00Z",
+        "status_state": "pre",
+        "competitors": [
+            {"home_away": "home", "name": "Home"},
+            {"home_away": "away", "name": "Away"},
+        ],
+    }]
+    update_pick_history(
+        board, [], tmp_path / "site" / "data",
+        datetime(2026, 11, 24, 23, 45, tzinfo=timezone.utc), games=games
+    )
+    daily = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    all_history = json.loads((tmp_path / "data" / "all_pick_history.json").read_text())
+    assert len(daily["days"]["2026-11-25"]["picks"]) == 1
+    all_picks = all_history["days"]["2026-11-25"]["picks"]
+    assert {pick["side"] for pick in all_picks} == {"OVER", "UNDER"}
+    assert len(all_picks) == 2
+    assert {pick["bookmaker"] for pick in all_picks} == {"Book A", "Book Under"}
+
+
+def test_all_archive_is_settled_by_same_official_finalized_game_check(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    board = _board()
+    board[0]["commence_time"] = "2026-11-25T00:00:00Z"
+    board[0]["under_hits"] = 8
+    board[0]["under_quotes"] = [{"odds": 1.85, "bookmaker": "Book Under"}]
+    games = [{
+        "id": "espn-event-1",
+        "date": "2026-11-25T00:00:00Z",
+        "status_state": "pre",
+        "competitors": [
+            {"home_away": "home", "name": "Home"},
+            {"home_away": "away", "name": "Away"},
+        ],
+    }]
+    site_data = tmp_path / "site" / "data"
+    first_run = datetime(2026, 11, 24, 23, 45, tzinfo=timezone.utc)
+    update_pick_history(board, [], site_data, first_run, games=games)
+    logs = [{
+        "player_id": "123",
+        "player_name": "Keaton Wagler",
+        "game_date": "2026-11-24",
+        "pts": "10",
+        "reb": "5",
+        "ast": "5",
+        "min": "30:00",
+    }]
+    finalized = {("2026-11-24", "home", "away")}
+    update_pick_history(
+        [], logs, site_data, datetime(2026, 11, 26, 16, 0, tzinfo=timezone.utc),
+        games=[], finalized_games=finalized
+    )
+    all_history = json.loads((tmp_path / "data" / "all_pick_history.json").read_text())
+    results = {pick["side"]: pick["result"] for pick in all_history["days"]["2026-11-25"]["picks"]}
+    assert results == {"OVER": "WIN", "UNDER": "LOSS"}
+    assert all(pick["actual"] == 20 for pick in all_history["days"]["2026-11-25"]["picks"])
+
+
+def test_all_archive_does_not_capture_before_nov_25(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    update_pick_history(
+        _board(), [], tmp_path / "site" / "data",
+        datetime(2026, 11, 23, 23, 45, tzinfo=timezone.utc), games=_games()
+    )
+    all_history = json.loads((tmp_path / "data" / "all_pick_history.json").read_text())
+    assert all_history["days"] == {}
