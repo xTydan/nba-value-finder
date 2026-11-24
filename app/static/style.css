@@ -346,3 +346,37 @@ body{background:radial-gradient(ellipse at 50% -15%,#142d4b 0%,#0a1423 42%,#080f
 .context-stat small{font-size:9px;color:#83caff;line-height:1.35}
 .matchup-note{line-height:1.45}
 @media(max-width:600px){.context-grid{grid-template-columns:1fr 1fr}.context-stat{padding:8px}.context-stat b{font-size:15px}}
+
+/* Collapsible pick cards and list sections */
+.list-collapse{margin-top:12px;border:1px solid #294363;border-radius:12px;padding:0 14px 14px;background:linear-gradient(150deg,#14243a,#0e1929)}
+.list-collapse-head{display:flex;justify-content:space-between;align-items:center;gap:12px;list-style:none;cursor:pointer;padding:14px 2px;color:#edf5ff}
+.list-collapse-head::-webkit-details-marker{display:none}
+.list-collapse-head:after{content:"＋";color:#63bdff;font-size:18px;font-weight:800}
+.list-collapse[open]>.list-collapse-head:after{content:"−"}
+.list-collapse-head b{font-size:12px;letter-spacing:.5px}
+.list-collapse-head small{color:#9aafc8}
+.pick-card{display:block;min-width:0;overflow:hidden}
+.pick-card>.pick-compact{display:grid;grid-template-columns:minmax(115px,1fr) minmax(0,2fr) auto;align-items:center;gap:12px;list-style:none;cursor:pointer;padding:13px 15px}
+.pick-card>.pick-compact::-webkit-details-marker{display:none}
+.compact-identity{display:grid;gap:4px;min-width:0}
+.compact-identity>b{font-size:14px;color:#f2f7ff;overflow-wrap:anywhere}
+.compact-identity>small{font-size:10px;color:#9aafc8}
+.compact-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0}
+.compact-pick{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:8px 10px;border:1px solid #294363;border-radius:8px;background:#0b1727;min-width:0}
+.compact-pick>b{font-size:11px;color:#dcecff;white-space:nowrap}
+.compact-coverage{font-size:11px;color:#83caff;white-space:nowrap}
+.compact-pick>strong{font-size:13px;color:#ffad62;white-space:nowrap}
+.compact-expand{font-size:10px;color:#83caff;white-space:nowrap}
+.pick-expanded{padding:0 14px 14px;border-top:1px solid #294363}
+.pick-card[open]>.pick-compact{border-bottom:1px solid #294363}
+.pick-card[open] .compact-expand{color:#ffbd79}
+@media(max-width:700px){
+ .list-collapse{padding:0 9px 10px}
+ .pick-card>.pick-compact{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:11px 10px}
+ .compact-identity{grid-column:1}
+ .compact-options{grid-column:1/-1;grid-row:2;gap:6px}
+ .compact-pick{grid-template-columns:minmax(0,1fr) auto auto;gap:5px;padding:7px 6px}
+ .compact-pick>b,.compact-coverage{font-size:10px}
+ .compact-pick>strong{font-size:12px}
+ .compact-expand{grid-column:2;grid-row:1}
+}
