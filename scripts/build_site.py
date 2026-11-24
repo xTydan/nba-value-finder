@@ -131,6 +131,7 @@ def main():
         games=games, finalized_games=finalized_games
     )
     board_status = "Dane historyczne niedostępne — brak pełnego rankingu L10." if not stats_meta else f"Linie z historią co najmniej 5 meczów: {len(props_board)}."
+    print("Matchup context:", json.dumps(matchup_summary, ensure_ascii=False, sort_keys=True))
 
     snapshot = {
         "generated_at": now.isoformat(),
