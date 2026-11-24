@@ -150,3 +150,54 @@ def test_dnp_box_score_row_is_void_even_when_stats_are_zero(tmp_path, monkeypatc
                         datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc), games=[], finalized_games=_finalized())
     saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
     assert saved["days"]["2026-11-24"]["picks"][0]["result"] == "VOID"
+
+
+
+def test_archive_matches_props_to_espn_by_matchup_not_provider_event_id(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    board = _board()
+    board[0]["event_id"] = "prop-line-event-999"
+    games = [{
+        "id": "espn-event-123",
+        "date": "2026-11-24T00:00:00Z",
+        "status_state": "pre",
+        "competitors": [
+            {"home_away": "home", "name": "Home"},
+            {"home_away": "away", "name": "Away"},
+        ],
+    }]
+    result = update_pick_history(
+        board, [], tmp_path / "site" / "data",
+        datetime(2026, 11, 23, 23, 45, tzinfo=timezone.utc), games=games
+    )
+    assert result["today_picks"] == 1
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    assert saved["days"]["2026-11-24"]["picks"][0]["event_id"] == "prop-line-event-999"
+
+
+def test_archives_multiple_upcoming_slate_days_in_one_build(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    first = _board()[0]
+    second = dict(first)
+    second.update({
+        "event_id": "event-2",
+        "player_id": "456",
+        "player": "Another Player",
+        "home_team": "Home 2",
+        "away_team": "Away 2",
+        "commence_time": "2026-11-25T01:00:00Z",
+    })
+    games = [
+        {"id": "espn-1", "date": "2026-11-24T00:00:00Z", "status_state": "pre",
+         "competitors": [{"home_away": "home", "name": "Home"}, {"home_away": "away", "name": "Away"}]},
+        {"id": "espn-2", "date": "2026-11-25T01:00:00Z", "status_state": "pre",
+         "competitors": [{"home_away": "home", "name": "Home 2"}, {"home_away": "away", "name": "Away 2"}]},
+    ]
+    update_pick_history(
+        [first, second], [], tmp_path / "site" / "data",
+        datetime(2026, 11, 23, 23, 45, tzinfo=timezone.utc), games=games
+    )
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    assert set(saved["days"]) == {"2026-11-24", "2026-11-25"}
+    assert saved["days"]["2026-11-24"]["picks"][0]["player"] == "Keaton Wagler"
+    assert saved["days"]["2026-11-25"]["picks"][0]["player"] == "Another Player"
