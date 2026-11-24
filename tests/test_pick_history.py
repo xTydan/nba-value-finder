@@ -201,3 +201,9 @@ def test_archives_multiple_upcoming_slate_days_in_one_build(tmp_path, monkeypatc
     assert set(saved["days"]) == {"2026-11-24", "2026-11-25"}
     assert saved["days"]["2026-11-24"]["picks"][0]["player"] == "Keaton Wagler"
     assert saved["days"]["2026-11-25"]["picks"][0]["player"] == "Another Player"
+
+
+
+def test_team_key_normalizes_espn_la_clippers_alias():
+    from app.pick_history import _team_key
+    assert _team_key("LA Clippers") == _team_key("Los Angeles Clippers") == "clippers"
