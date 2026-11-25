@@ -353,3 +353,24 @@ def test_all_archive_does_not_capture_before_nov_25(tmp_path, monkeypatch):
     )
     all_history = json.loads((tmp_path / "data" / "all_pick_history.json").read_text())
     assert all_history["days"] == {}
+
+
+def test_espn_boxscore_row_is_preferred_to_duplicate_historical_row(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    site_data = tmp_path / "site" / "data"
+    update_pick_history(_board(), [], site_data,
+                        datetime(2026, 11, 24, 0, 7, tzinfo=timezone.utc), games=_games())
+    historical = {
+        "player_id": "123", "player_name": "Keaton Wagler",
+        "game_date": "2026-11-23", "team_abbreviation": "HOME",
+        "pts": "2", "reb": "1", "ast": "1", "min": "30:00",
+    }
+    espn_row = {**historical, "pts": "10", "reb": "5", "ast": "5",
+                "_source": "ESPN box score"}
+    update_pick_history([], [historical, espn_row], site_data,
+                        datetime(2026, 11, 25, 16, 0, tzinfo=timezone.utc),
+                        games=[], finalized_games=_finalized())
+    saved = json.loads((tmp_path / "data" / "pick_history.json").read_text())
+    pick = saved["days"]["2026-11-24"]["picks"][0]
+    assert pick["actual"] == 20
+    assert pick["result"] == "WIN"
