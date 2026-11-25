@@ -104,6 +104,10 @@ def _settle(day_data: dict[str, Any], logs: list[dict[str, str]], stat_value, fi
             ]
             if team_matches:
                 matching = team_matches
+        # Prefer ESPN's official box score when both feeds have the same player/game.
+        espn_rows = [row for row in matching if str(row.get("_source") or "").startswith("ESPN")]
+        if espn_rows:
+            matching = espn_rows
         if len(matching) != 1:
             continue
         row = matching[0]
