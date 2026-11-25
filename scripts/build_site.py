@@ -118,6 +118,12 @@ def main():
             parsed = datetime.fromisoformat(str(game_date).replace("Z", "+00:00"))
             day_et = parsed.astimezone(ZoneInfo("America/New_York")).date().isoformat()
             finalized_games.add((day_et, _team_key(home), _team_key(away)))
+    # ESPN's official box scores are an independent settlement source and
+    # must remain usable even when SportsDataverse has not published its CSV yet.
+    espn_boxscore_logs, espn_boxscore_meta = espn.get_boxscore_player_logs(games)
+    settlement_logs = list(historical_data[0]) if historical_data else []
+    settlement_logs.extend(espn_boxscore_logs)
+
     props_board = build_props_board(odds_items)
     matchup_summary = {"offers_with_matchup_context": 0, "team_game_rows": 0, "teams_with_history": 0, "note": "Historical team context unavailable."}
     if historical_data:
@@ -127,7 +133,7 @@ def main():
             # Matchup context is optional and must never interrupt board/history builds.
             matchup_summary = {"offers_with_matchup_context": 0, "error": type(exc).__name__}
     history_status = update_pick_history(
-        props_board, historical_data[0] if historical_data else [], SITE / "data", now,
+        props_board, settlement_logs, SITE / "data", now,
         games=games, finalized_games=finalized_games
     )
     board_status = "Dane historyczne niedostępne — brak pełnego rankingu L10." if not stats_meta else f"Linie z historią co najmniej 5 meczów: {len(props_board)}."
@@ -141,6 +147,7 @@ def main():
         "analysis_summary": analysis_summary,
         "matchup_summary": matchup_summary,
         "stats_meta": stats_meta,
+        "espn_boxscore_meta": espn_boxscore_meta,
         "odds_count": (odds or {}).get("count", 0),
         "bookmakers": (odds or {}).get("bookmakers", []),
         "injuries": impact_injuries,
@@ -184,6 +191,7 @@ def main():
         f"enriched={analysis_summary['offers_enriched']}",
         f"player_analysis={len(player_analysis)}",
     )
+    print("ESPN box score stats:", json.dumps(espn_boxscore_meta, ensure_ascii=False, sort_keys=True))
     print("Pick history:", json.dumps(history_status, ensure_ascii=False, sort_keys=True))
     for status in snapshot["sources"]:
         print(f"{status['name']}: {'OK' if status['available'] else 'UNAVAILABLE'}")
