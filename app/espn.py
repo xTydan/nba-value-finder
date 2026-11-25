@@ -101,6 +101,90 @@ def get_scoreboard(date: str | None = None) -> dict[str, Any]:
     return result
 
 
+
+def _boxscore_player_rows(payload: dict[str, Any], event: dict[str, Any]) -> list[dict[str, str]]:
+    """Normalize ESPN's official event summary box score into player game-log rows."""
+    from zoneinfo import ZoneInfo
+    try:
+        parsed = datetime.fromisoformat(str(event.get("date")).replace("Z", "+00:00"))
+        game_day = parsed.astimezone(ZoneInfo("America/New_York")).date().isoformat()
+    except (TypeError, ValueError):
+        return []
+    rows: list[dict[str, str]] = []
+    for team_block in (payload.get("boxscore") or {}).get("players") or []:
+        team = team_block.get("team") or {}
+        for group in team_block.get("statistics") or []:
+            names = group.get("names") or group.get("keys") or []
+            for item in group.get("athletes") or []:
+                athlete = item.get("athlete") or {}
+                name = athlete.get("displayName") or athlete.get("fullName")
+                if not name:
+                    continue
+                values = item.get("stats") or []
+                keyed = {re.sub(r"[^a-z0-9]", "", str(k).casefold()): str(values[i]).strip()
+                         for i, k in enumerate(names) if i < len(values)}
+                def get(*keys):
+                    for key in keys:
+                        value = keyed.get(re.sub(r"[^a-z0-9]", "", key.casefold()))
+                        if value not in (None, ""):
+                            return value
+                    return ""
+                dnp = any("DNP" in str(value).upper() for value in values)
+                three = get("3PM", "FG3M", "3PT")
+                if "-" in three:
+                    three = three.split("-", 1)[0]
+                rows.append({
+                    "player_id": str(athlete.get("id") or ""),
+                    "player_name": str(name), "game_date": game_day,
+                    "game_id": str(event.get("id") or ""),
+                    "team_id": str(team.get("id") or ""),
+                    "team_abbreviation": str(team.get("abbreviation") or "").upper(),
+                    "min": "0:00" if dnp else get("MIN", "Minutes"),
+                    "pts": get("PTS", "Points"), "reb": get("REB", "TRB", "TotalRebounds"),
+                    "ast": get("AST", "Assists"), "fg3m": three,
+                    "stl": get("STL", "Steals"), "blk": get("BLK", "Blocks"),
+                    "tov": get("TO", "TOV", "Turnovers"),
+                    "_source": "ESPN box score",
+                })
+    return rows
+
+
+def get_boxscore_player_logs(events: list[dict[str, Any]]) -> tuple[list[dict[str, str]], dict[str, Any]]:
+    """Fetch box scores only for games ESPN has marked Final."""
+    logs: list[dict[str, str]] = []
+    checked = 0
+    fetched = 0
+    failures: list[str] = []
+    for event in events:
+        if str(event.get("status_state") or "").lower() != "post" or not event.get("id"):
+            continue
+        checked += 1
+        event_id = str(event["id"])
+        try:
+            key = ("boxscore", event_id)
+            cached = _CACHE.get(key)
+            if cached and time.monotonic() - cached[0] < CACHE_TTL_SECONDS:
+                payload = cached[1]
+            else:
+                payload = _get_json(f"{BASE}/summary", {"event": event_id})
+                _CACHE[key] = (time.monotonic(), payload)
+            rows = _boxscore_player_rows(payload, event)
+            if rows:
+                logs.extend(rows)
+                fetched += 1
+            else:
+                failures.append(f"{event_id}: no player rows")
+        except ESPNError as exc:
+            failures.append(f"{event_id}: {exc}")
+    return logs, {
+        "provider": "ESPN official NBA box scores",
+        "finalized_events_checked": checked,
+        "events_with_player_stats": fetched,
+        "player_rows": len(logs),
+        "failures": failures,
+    }
+
+
 def get_injuries() -> dict[str, Any]:
     cache_key = ("injuries", "league")
     cached = _CACHE.get(cache_key)
