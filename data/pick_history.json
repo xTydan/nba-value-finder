@@ -1037,7 +1037,7 @@
       ]
     },
     "2026-11-26": {
-      "captured_at": "2026-11-25T09:35:41.656972+00:00",
+      "captured_at": "2026-11-25T10:01:12.294359+00:00",
       "picks": [
         {
           "pick_id": "735017|1631200|player_rebounds|3.5|under",
@@ -1055,7 +1055,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 10,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1075,7 +1075,7 @@
           "bookmaker": "theScore Bet",
           "l10_hits": 10,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1095,7 +1095,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1115,7 +1115,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1135,7 +1135,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1155,7 +1155,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1175,7 +1175,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1195,7 +1195,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1215,27 +1215,7 @@
           "bookmaker": "BetRivers",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
-          "result": "PENDING",
-          "actual": null
-        },
-        {
-          "pick_id": "135524|1630183|player_rebounds_assists|8.5|over",
-          "player": "Jaden McDaniels",
-          "player_id": "1630183",
-          "team": null,
-          "home_team": "Oklahoma City Thunder",
-          "away_team": "Minnesota Timberwolves",
-          "event_id": "135524",
-          "game_date_et": "2026-11-25",
-          "market": "player_rebounds_assists",
-          "line": 8.5,
-          "side": "OVER",
-          "odds": 1.8772,
-          "bookmaker": "FanDuel",
-          "l10_hits": 9,
-          "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1255,7 +1235,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1275,7 +1255,7 @@
           "bookmaker": "BetRivers",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1295,7 +1275,27 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
+          "result": "PENDING",
+          "actual": null
+        },
+        {
+          "pick_id": "135524|1630183|player_rebounds_assists|8.5|over",
+          "player": "Jaden McDaniels",
+          "player_id": "1630183",
+          "team": null,
+          "home_team": "Oklahoma City Thunder",
+          "away_team": "Minnesota Timberwolves",
+          "event_id": "135524",
+          "game_date_et": "2026-11-25",
+          "market": "player_rebounds_assists",
+          "line": 8.5,
+          "side": "OVER",
+          "odds": 1.8547,
+          "bookmaker": "Unibet",
+          "l10_hits": 9,
+          "l10_sample": 10,
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1315,7 +1315,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1335,7 +1335,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1355,7 +1355,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1375,7 +1375,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1395,7 +1395,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1415,7 +1415,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1435,7 +1435,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1455,7 +1455,27 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
+          "result": "PENDING",
+          "actual": null
+        },
+        {
+          "pick_id": "735014|1627741|player_rebounds_assists|6.5|under",
+          "player": "Buddy Hield",
+          "player_id": "1627741",
+          "team": null,
+          "home_team": "Charlotte Hornets",
+          "away_team": "Chicago Bulls",
+          "event_id": "735014",
+          "game_date_et": "2026-11-25",
+          "market": "player_rebounds_assists",
+          "line": 6.5,
+          "side": "UNDER",
+          "odds": 1.7519,
+          "bookmaker": "DraftKings",
+          "l10_hits": 9,
+          "l10_sample": 10,
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1475,7 +1495,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1495,27 +1515,7 @@
           "bookmaker": "DraftKings",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
-          "result": "PENDING",
-          "actual": null
-        },
-        {
-          "pick_id": "735014|1627741|player_rebounds_assists|6.5|under",
-          "player": "Buddy Hield",
-          "player_id": "1627741",
-          "team": null,
-          "home_team": "Charlotte Hornets",
-          "away_team": "Chicago Bulls",
-          "event_id": "735014",
-          "game_date_et": "2026-11-25",
-          "market": "player_rebounds_assists",
-          "line": 6.5,
-          "side": "UNDER",
-          "odds": 1.7194,
-          "bookmaker": "DraftKings",
-          "l10_hits": 9,
-          "l10_sample": 10,
-          "captured_at": "2026-11-25T09:35:41.656972+00:00",
+          "captured_at": "2026-11-25T10:01:12.294359+00:00",
           "result": "PENDING",
           "actual": null
         }
