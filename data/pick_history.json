@@ -1549,7 +1549,7 @@
       ]
     },
     "2026-11-28": {
-      "captured_at": "2026-11-26T10:01:10.873534+00:00",
+      "captured_at": "2026-11-26T11:01:11.485086+00:00",
       "picks": [
         {
           "pick_id": "135394|1630559|player_points_rebounds_assists|22.5|over",
@@ -1567,7 +1567,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 10,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1583,11 +1583,11 @@
           "market": "player_points",
           "line": 15.5,
           "side": "OVER",
-          "odds": 1.8333,
+          "odds": 1.8,
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 10,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1607,7 +1607,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 10,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1627,7 +1627,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 10,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1647,7 +1647,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 10,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1667,7 +1667,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1687,7 +1687,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1707,7 +1707,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1727,7 +1727,27 @@
           "bookmaker": "FanDuel",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
+          "result": "PENDING",
+          "actual": null
+        },
+        {
+          "pick_id": "135406|1630558|player_points|13.5|over",
+          "player": "Davion Mitchell",
+          "player_id": "1630558",
+          "team": null,
+          "home_team": "New York Knicks",
+          "away_team": "Miami Heat",
+          "event_id": "135406",
+          "game_date_et": "2026-11-27",
+          "market": "player_points",
+          "line": 13.5,
+          "side": "OVER",
+          "odds": 1.8696,
+          "bookmaker": "BetRivers",
+          "l10_hits": 9,
+          "l10_sample": 10,
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1747,7 +1767,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1767,27 +1787,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
-          "result": "PENDING",
-          "actual": null
-        },
-        {
-          "pick_id": "135406|1630558|player_points|13.5|over",
-          "player": "Davion Mitchell",
-          "player_id": "1630558",
-          "team": null,
-          "home_team": "New York Knicks",
-          "away_team": "Miami Heat",
-          "event_id": "135406",
-          "game_date_et": "2026-11-27",
-          "market": "player_points",
-          "line": 13.5,
-          "side": "OVER",
-          "odds": 1.8547,
-          "bookmaker": "BetRivers",
-          "l10_hits": 9,
-          "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1807,7 +1807,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1827,7 +1827,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1847,7 +1847,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1867,7 +1867,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1887,7 +1887,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1907,7 +1907,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1927,7 +1927,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1947,7 +1947,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1967,7 +1967,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1987,7 +1987,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2007,7 +2007,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2024,10 +2024,10 @@
           "line": 10.5,
           "side": "OVER",
           "odds": 1.9091,
-          "bookmaker": "Stoiximan",
+          "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-26T10:01:10.873534+00:00",
+          "captured_at": "2026-11-26T11:01:11.485086+00:00",
           "result": "PENDING",
           "actual": null
         }
