@@ -1185,8 +1185,9 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-25T23:01:11.000887+00:00",
-          "result": "PENDING",
-          "actual": null
+          "result": "LOSS",
+          "actual": 12.0,
+          "settled_at": "2026-11-26T04:01:20.459780+00:00"
         },
         {
           "pick_id": "735018|1630578|player_threes|0.5|over",
@@ -1266,8 +1267,9 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-25T23:01:11.000887+00:00",
-          "result": "PENDING",
-          "actual": null
+          "result": "LOSS",
+          "actual": 1.0,
+          "settled_at": "2026-11-26T04:01:20.460587+00:00"
         },
         {
           "pick_id": "735017|1631200|player_points_rebounds_assists|9.5|under",
@@ -1286,8 +1288,9 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-25T23:01:11.000887+00:00",
-          "result": "PENDING",
-          "actual": null
+          "result": "LOSS",
+          "actual": 15.0,
+          "settled_at": "2026-11-26T04:01:20.461347+00:00"
         },
         {
           "pick_id": "735015|1628404|player_points_rebounds|17.5|under",
@@ -1348,8 +1351,9 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-25T23:01:11.000887+00:00",
-          "result": "PENDING",
-          "actual": null
+          "result": "LOSS",
+          "actual": 7.0,
+          "settled_at": "2026-11-26T04:01:20.462054+00:00"
         },
         {
           "pick_id": "735019|1629001|player_points_assists|15.5|under",
@@ -1428,8 +1432,9 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-25T23:01:11.000887+00:00",
-          "result": "PENDING",
-          "actual": null
+          "result": "WIN",
+          "actual": 31.0,
+          "settled_at": "2026-11-26T04:01:20.462806+00:00"
         },
         {
           "pick_id": "135524|1642866|player_points_assists|5.5|under",
@@ -1448,8 +1453,9 @@
           "l10_hits": 9,
           "l10_sample": 10,
           "captured_at": "2026-11-25T23:01:11.000887+00:00",
-          "result": "PENDING",
-          "actual": null
+          "result": "WIN",
+          "actual": 5.0,
+          "settled_at": "2026-11-26T04:01:20.463553+00:00"
         },
         {
           "pick_id": "735018|1631106|player_rebounds_assists|6.5|over",
