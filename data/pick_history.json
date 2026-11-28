@@ -2034,7 +2034,7 @@
       ]
     },
     "2026-11-29": {
-      "captured_at": "2026-11-28T02:01:11.116130+00:00",
+      "captured_at": "2026-11-28T02:35:41.936549+00:00",
       "picks": [
         {
           "pick_id": "837529|1642892|player_assists|2.5|under",
@@ -2052,7 +2052,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T02:01:11.116130+00:00",
+          "captured_at": "2026-11-28T02:35:41.936549+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2072,7 +2072,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T02:01:11.116130+00:00",
+          "captured_at": "2026-11-28T02:35:41.936549+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2092,7 +2092,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T02:01:11.116130+00:00",
+          "captured_at": "2026-11-28T02:35:41.936549+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2112,7 +2112,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T02:01:11.116130+00:00",
+          "captured_at": "2026-11-28T02:35:41.936549+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2132,7 +2132,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T02:01:11.116130+00:00",
+          "captured_at": "2026-11-28T02:35:41.936549+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2152,7 +2152,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T02:01:11.116130+00:00",
+          "captured_at": "2026-11-28T02:35:41.936549+00:00",
           "result": "PENDING",
           "actual": null
         }
