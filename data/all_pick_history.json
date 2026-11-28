@@ -6613,6 +6613,71 @@
           "actual": null
         }
       ]
+    },
+    "2026-11-29": {
+      "captured_at": "2026-11-28T00:01:11.088036+00:00",
+      "picks": [
+        {
+          "pick_id": "837529|1629026|player_points_assists|10.5|OVER",
+          "player": "Kenrich Williams",
+          "player_id": "1629026",
+          "team": null,
+          "home_team": "Milwaukee Bucks",
+          "away_team": "Oklahoma City Thunder",
+          "event_id": "837529",
+          "game_date_et": "2026-11-28",
+          "market": "player_points_assists",
+          "line": 10.5,
+          "side": "OVER",
+          "odds": 1.8772,
+          "bookmaker": "FanDuel",
+          "l10_hits": 8,
+          "l10_sample": 10,
+          "captured_at": "2026-11-28T00:01:11.088036+00:00",
+          "result": "PENDING",
+          "actual": null
+        },
+        {
+          "pick_id": "837529|1629026|player_rebounds_assists|7.5|UNDER",
+          "player": "Kenrich Williams",
+          "player_id": "1629026",
+          "team": null,
+          "home_team": "Milwaukee Bucks",
+          "away_team": "Oklahoma City Thunder",
+          "event_id": "837529",
+          "game_date_et": "2026-11-28",
+          "market": "player_rebounds_assists",
+          "line": 7.5,
+          "side": "UNDER",
+          "odds": 1.7353,
+          "bookmaker": "FanDuel",
+          "l10_hits": 8,
+          "l10_sample": 10,
+          "captured_at": "2026-11-28T00:01:11.088036+00:00",
+          "result": "PENDING",
+          "actual": null
+        },
+        {
+          "pick_id": "837529|1629026|player_rebounds|5.5|UNDER",
+          "player": "Kenrich Williams",
+          "player_id": "1629026",
+          "team": null,
+          "home_team": "Milwaukee Bucks",
+          "away_team": "Oklahoma City Thunder",
+          "event_id": "837529",
+          "game_date_et": "2026-11-28",
+          "market": "player_rebounds",
+          "line": 5.5,
+          "side": "UNDER",
+          "odds": 1.7246,
+          "bookmaker": "FanDuel",
+          "l10_hits": 8,
+          "l10_sample": 10,
+          "captured_at": "2026-11-28T00:01:11.088036+00:00",
+          "result": "PENDING",
+          "actual": null
+        }
+      ]
     }
   }
 }
