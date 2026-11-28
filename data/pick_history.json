@@ -1549,7 +1549,7 @@
       ]
     },
     "2026-11-28": {
-      "captured_at": "2026-11-28T10:56:10.062822+00:00",
+      "captured_at": "2026-11-28T11:01:10.559666+00:00",
       "picks": [
         {
           "pick_id": "852428|1629027|player_points_rebounds|18.5|under",
@@ -1567,7 +1567,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1583,11 +1583,11 @@
           "market": "player_rebounds_assists",
           "line": 12.5,
           "side": "OVER",
-          "odds": 1.8696,
+          "odds": 1.8772,
           "bookmaker": "Stoiximan",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1607,7 +1607,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1627,7 +1627,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1647,7 +1647,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1667,18 +1667,18 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         }
       ]
     },
     "2026-11-29": {
-      "captured_at": "2026-11-28T10:56:10.062822+00:00",
+      "captured_at": "2026-11-28T11:01:10.559666+00:00",
       "picks": [
         {
           "pick_id": "852431|1630578|player_threes|0.5|over",
-          "player": "Alperen Sengun",
+          "player": "Alperen Şengün",
           "player_id": "1630578",
           "team": null,
           "home_team": "Houston Rockets",
@@ -1688,11 +1688,11 @@
           "market": "player_threes",
           "line": 0.5,
           "side": "OVER",
-          "odds": 1.7353,
-          "bookmaker": "BetRivers",
+          "odds": 1.8,
+          "bookmaker": "Fanatics",
           "l10_hits": 10,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1712,7 +1712,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1732,7 +1732,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1752,7 +1752,7 @@
           "bookmaker": "Fanatics",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1772,7 +1772,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1792,7 +1792,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1812,7 +1812,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1832,7 +1832,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1852,7 +1852,7 @@
           "bookmaker": "Hard Rock Bet",
           "l10_hits": 9,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1872,7 +1872,7 @@
           "bookmaker": "FanDuel",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1892,7 +1892,7 @@
           "bookmaker": "Fanatics",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1912,7 +1912,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1932,7 +1932,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1952,7 +1952,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1972,7 +1972,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -1992,7 +1992,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2012,7 +2012,7 @@
           "bookmaker": "Stoiximan",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2032,7 +2032,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2052,7 +2052,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2072,7 +2072,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2092,7 +2092,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2112,7 +2112,7 @@
           "bookmaker": "Elabet",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2132,7 +2132,7 @@
           "bookmaker": "DraftKings",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         },
@@ -2152,7 +2152,7 @@
           "bookmaker": "DraftKings",
           "l10_hits": 8,
           "l10_sample": 10,
-          "captured_at": "2026-11-28T10:56:10.062822+00:00",
+          "captured_at": "2026-11-28T11:01:10.559666+00:00",
           "result": "PENDING",
           "actual": null
         }
